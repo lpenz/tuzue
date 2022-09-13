@@ -22,6 +22,9 @@ class View:
         for i, item in enumerate(self.items):
             yield item
 
+    def selected_item(self):
+        return self.items[self.item_current]
+
     def key_down(self):
         if self.item_current < len(self.items) - 1:
             self.item_current += 1

@@ -1,3 +1,4 @@
 .cache/
 __pycache__/
 *.pyc
+/src/tuzue.egg-info/
