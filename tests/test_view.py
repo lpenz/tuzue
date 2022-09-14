@@ -17,3 +17,12 @@ class TestView(unittest.TestCase):
         self.assertEqual(self.view.input_string, "test")
         self.view.key_backspace()
         self.assertEqual(self.view.input_string, "tes")
+
+    def test_visible(self):
+        items = [str(i) for i in range(0, 20)]
+        self.view.set_items(items)
+        self.assertEqual(list(self.view.visible_items(999)), items)
+        self.assertEqual(self.view.selected_item(), "0")
+        self.view.typed("2")
+        self.assertEqual(list(self.view.visible_items(999)), ["2", "12"])
+        self.assertEqual(self.view.selected_item(), "2")

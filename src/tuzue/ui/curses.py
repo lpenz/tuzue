@@ -77,11 +77,10 @@ class UiCurses:
 
     def show(self, view):
         self.winmenu.erase()
-        for i, item in enumerate(view.visible_items()):
-            if i == view.item_current:
-                self.winmenu.addstr(i, 0, item, curses.A_REVERSE)
-            else:
-                self.winmenu.addstr(i, 0, item)
+        for i, item in enumerate(view.visible_items(self.max_items())):
+            self.winmenu.addstr(i, 0, item)
+        if view.line is not None:
+            self.winmenu.addstr(view.line, 0, view.item, curses.A_REVERSE)
         self.winmenu.noutrefresh()
         self.winprompt.erase()
         self.winprompt.addstr(0, 0, self.prompt)
