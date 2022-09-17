@@ -11,13 +11,6 @@ class TestView(unittest.TestCase):
     def setUp(self):
         self.view = tuzue.view.View()
 
-    def test_input(self):
-        for c in "test":
-            self.view.typed(c)
-        self.assertEqual(self.view.input_string, "test")
-        self.view.key_backspace()
-        self.assertEqual(self.view.input_string, "tes")
-
     def test_visible(self):
         items = [str(i) for i in range(0, 20)]
         self.view.set_items(items)

@@ -84,9 +84,9 @@ class UiCurses:
         self.winmenu.noutrefresh()
         self.winprompt.erase()
         self.winprompt.addstr(0, 0, self.prompt)
-        self.winprompt.addstr(0, len(self.prompt), view.input_string)
+        self.winprompt.addstr(0, len(self.prompt), view.input.string)
         self.winprompt.noutrefresh()
-        curses.setsyx(self.winprompt_y, len(self.prompt) + view.input_pos)
+        curses.setsyx(self.winprompt_y, len(self.prompt) + view.input.pos)
         curses.doupdate()
 
     def interact(self, view):

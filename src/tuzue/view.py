@@ -7,6 +7,8 @@ necessarily the current view, but it can be so by using the Screen
 instance.
 """
 
+import tuzue.input
+
 
 class View:
     def __init__(self):
@@ -14,8 +16,7 @@ class View:
         self.line = 0
         self.line2idx = {}
         self.item = None
-        self.input_string = ""
-        self.input_pos = 0
+        self.input = tuzue.input.Input()
 
     def set_items(self, items):
         self.items = items
@@ -26,7 +27,7 @@ class View:
         line = 0
         self.line = None
         for idx, item in enumerate(self.items):
-            if self.input_string not in item:
+            if self.input.string not in item:
                 continue
             if line >= max_items:
                 break
@@ -59,10 +60,7 @@ class View:
         self.move_to_line(self.line - 1)
 
     def key_backspace(self):
-        if self.input_string:
-            self.input_string = self.input_string[:-1]
-            self.input_pos -= 1
+        self.input.key_backspace()
 
     def typed(self, char):
-        self.input_string += char
-        self.input_pos += 1
+        self.input.typed(char)
