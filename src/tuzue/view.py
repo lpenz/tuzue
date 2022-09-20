@@ -17,6 +17,7 @@ class View:
         self.line2idx = {}
         self.item = None
         self.input = tuzue.input.Input()
+        self.path = ""
 
     def set_items(self, items):
         self.items = items

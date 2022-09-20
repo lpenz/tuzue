@@ -32,6 +32,7 @@ def navdir(path):
         menu.append(entity)
     view = tuzue.view.View()
     view.set_items(menu)
+    view.path = "/" + "/".join(path)
     with tuzue.ui.curses.context() as ui:
         while True:
             done = False

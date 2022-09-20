@@ -50,16 +50,21 @@ class UiCurses:
             curses.use_default_colors()
         except Exception:
             pass
-        self.winhelp = curses.newwin(1, curses.COLS, curses.LINES - 1, 0)
-        self.winhelp.addstr(0, 0, "help here")
-        self.winhelp.refresh()
+        self.winpath = curses.newwin(1, curses.COLS, curses.LINES - 1, 0)
+        self.winpath.noutrefresh()
         self.prompt = "> "
-        self.winprompt = curses.newwin(1, curses.COLS, 0, 0)
-        self.winprompt.keypad(True)
-        self.winprompt_y = 0
-        self.winmenu = curses.newwin(curses.LINES - 2, curses.COLS, 1, 0)
-        self.wins = [self.winhelp, self.winprompt, self.winmenu]
-        # self.winmenu = curses.newpad(curses.LINES-2, curses.COLS)
+        self.wininput_y = curses.LINES - 2
+        self.winprompt = curses.newwin(1, len(self.prompt) + 1, self.wininput_y, 0)
+        self.winprompt.addstr(0, 0, self.prompt)
+        self.winprompt.noutrefresh()
+        self.wininput = curses.newwin(
+            1, curses.COLS - len(self.prompt), self.wininput_y, len(self.prompt)
+        )
+        self.wininput.keypad(True)
+        self.wininput.noutrefresh()
+        self.winmenu = curses.newwin(curses.LINES - 2, curses.COLS, 0, 0)
+        self.winmenu.noutrefresh()
+        curses.doupdate()
 
     def end(self):
         if not self.stdscr:
@@ -82,15 +87,17 @@ class UiCurses:
         if view.line is not None:
             self.winmenu.addstr(view.line, 0, view.item, curses.A_REVERSE)
         self.winmenu.noutrefresh()
-        self.winprompt.erase()
-        self.winprompt.addstr(0, 0, self.prompt)
-        self.winprompt.addstr(0, len(self.prompt), view.input.string)
-        self.winprompt.noutrefresh()
-        curses.setsyx(self.winprompt_y, len(self.prompt) + view.input.pos)
+        self.wininput.erase()
+        self.wininput.addstr(0, 0, view.input.string)
+        self.wininput.noutrefresh()
+        self.winpath.erase()
+        self.winpath.addstr(0, 0, view.path)
+        self.winpath.noutrefresh()
+        curses.setsyx(self.wininput_y, len(self.prompt) + view.input.pos)
         curses.doupdate()
 
     def interact(self, view):
-        key = self.winprompt.getch()
+        key = self.wininput.getch()
         if key in {curses.KEY_ENTER, 10, 13}:
             # We are done
             return True
