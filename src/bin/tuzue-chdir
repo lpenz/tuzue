@@ -43,8 +43,9 @@ def navdir(path):
             if item == ".":
                 return (True, path)
             elif item == "..":
-                os.chdir("..")
-                path.pop()
+                if path:
+                    os.chdir("..")
+                    path.pop()
                 return (False, path)
             elif os.path.isdir(item):
                 os.chdir(item)
