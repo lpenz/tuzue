@@ -50,10 +50,10 @@ class UiCurses:
             curses.use_default_colors()
         except Exception:
             pass
-        self.winpath = curses.newwin(1, curses.COLS, curses.LINES - 1, 0)
+        self.winpath = curses.newwin(1, curses.COLS, 0, 0)
         self.winpath.noutrefresh()
         self.prompt = "> "
-        self.wininput_y = curses.LINES - 2
+        self.wininput_y = 1
         self.winprompt = curses.newwin(1, len(self.prompt) + 1, self.wininput_y, 0)
         self.winprompt.addstr(0, 0, self.prompt)
         self.winprompt.noutrefresh()
@@ -62,7 +62,7 @@ class UiCurses:
         )
         self.wininput.keypad(True)
         self.wininput.noutrefresh()
-        self.winmenu = curses.newwin(curses.LINES - 2, curses.COLS, 0, 0)
+        self.winmenu = curses.newwin(curses.LINES - 2, curses.COLS, 2, 0)
         self.winmenu.noutrefresh()
         curses.doupdate()
 
