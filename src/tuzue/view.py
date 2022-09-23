@@ -19,9 +19,10 @@ class View:
         self.input = tuzue.input.Input()
         self.path = ""
 
-    def set_items(self, items):
+    def items_set(self, items):
         self.items = items
-        self.item = items[0]
+        if self.item:
+            self.item = items[0]
 
     def visible_items(self, max_items):
         self.line2idx = {}
@@ -39,7 +40,7 @@ class View:
             self.line2idx[line] = idx
             yield item
             line += 1
-        if self.line is None:
+        if self.line is None and self.items:
             # No current line, go to top item:
             self.line = 0
             idx = self.line2idx[self.line]

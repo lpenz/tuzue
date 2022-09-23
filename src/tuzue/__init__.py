@@ -10,7 +10,7 @@ __version__ = "0.0.1"
 
 def navigate(struct):
     view = tuzue.view.View()
-    view.set_items(struct)
+    view.items_set(struct)
     done = None
     with tuzue.ui.curses.context() as ui:
         while not done:
