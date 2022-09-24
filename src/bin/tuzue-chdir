@@ -13,6 +13,7 @@ exists with 0.
 import sys
 import os
 import argparse
+import time
 
 import tuzue
 
@@ -26,12 +27,21 @@ def splitpath(path):
     return pathlist
 
 
-def navdir(path):
-    menu = [".", ".."]
+def generator(delay=None):
+    # We use a generator just to show the capabilities:
+    delay = delay or 0.01
+    time.sleep(delay)
+    yield "."
+    time.sleep(delay)
+    yield ".."
     for entity in os.listdir("."):
-        menu.append(entity)
+        time.sleep(delay)
+        yield entity
+
+
+def navdir(path, delay):
     view = tuzue.view.View()
-    view.set_items(menu)
+    view.item_generator_set(generator(delay))
     view.path = "/" + "/".join(path)
     with tuzue.ui.curses.context() as ui:
         while True:
@@ -59,12 +69,20 @@ def main():
     parser.add_argument(
         "--version", "-V", action="version", version="%(prog)s " + tuzue.__version__
     )
-    parser.parse_args()
+    parser.add_argument(
+        "--delay",
+        "-d",
+        dest="delay",
+        action="store",
+        type=float,
+        default=0.01,
+    )
+    args = parser.parse_args()
     cwd = os.getcwd()
     path = splitpath(cwd)
     done = False
     while not done:
-        (done, path) = navdir(path)
+        (done, path) = navdir(path, delay=args.delay)
     sys.stderr.write("/{}\n".format("/".join(path)))
 
 

@@ -12,17 +12,40 @@ import tuzue.input
 
 class View:
     def __init__(self):
-        self.items = {}
+        self.items = []
         self.line = 0
         self.line2idx = {}
         self.item = None
+        self.generator = None
         self.input = tuzue.input.Input()
         self.path = ""
 
     def items_set(self, items):
         self.items = items
-        if self.item:
+        if self.items:
             self.item = items[0]
+
+    def item_generator_set(self, generator):
+        self.generator = generator
+
+    def item_generate(self):
+        """
+        Generate one item using self.generator, if possible.
+
+        Returns True if an item was generated, or False otherwise - if we are already
+        done, for instance.
+        """
+        if not self.generator:
+            return False
+        try:
+            wasempty = self.items == []
+            self.items.append(next(self.generator))
+            if self.item is None and wasempty:
+                self.item = self.items[0]
+            return True
+        except StopIteration:
+            self.generator = None
+            return False
 
     def visible_items(self, max_items):
         self.line2idx = {}

@@ -97,6 +97,8 @@ class UiCurses:
         curses.doupdate()
 
     def interact(self, view):
+        view.item_generate()
+        self.wininput.nodelay(bool(view.generator))
         key = self.wininput.getch()
         if key in {curses.KEY_ENTER, 10, 13}:
             # We are done
@@ -112,8 +114,12 @@ class UiCurses:
             action()
         else:
             # Check if it's a regular typed char:
-            char = chr(key)
-            if char.isprintable():
+            char = None
+            try:
+                char = chr(key)
+            except ValueError:
+                pass
+            if char and char.isprintable():
                 view.typed(char)
         return False
 
