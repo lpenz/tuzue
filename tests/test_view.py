@@ -24,3 +24,6 @@ class TestView(unittest.TestCase):
         self.view.typed("2")
         self.assertEqual(list(self.view.visible_items(999)), ["2", "12"])
         self.assertEqual(self.view.selected_item(), "2")
+        self.view.typed("z")
+        self.assertEqual(list(self.view.visible_items(999)), [])
+        self.assertEqual(self.view.selected_item(), None)

@@ -15,7 +15,7 @@ class View:
         self.items = []
         self.line = 0
         self.line2idx = {}
-        self.item = None
+        self.selected = None
         self.generator = None
         self.input = tuzue.input.Input()
         self.path = ""
@@ -23,7 +23,7 @@ class View:
     def items_set(self, items):
         self.items = items
         if self.items:
-            self.item = items[0]
+            self.selected = items[0]
 
     def item_generator_set(self, generator):
         self.generator = generator
@@ -40,8 +40,8 @@ class View:
         try:
             wasempty = self.items == []
             self.items.append(next(self.generator))
-            if self.item is None and wasempty:
-                self.item = self.items[0]
+            if self.selected is None and wasempty:
+                self.selected = self.items[0]
             return True
         except StopIteration:
             self.generator = None
@@ -56,27 +56,29 @@ class View:
                 continue
             if line >= max_items:
                 break
-            if item == self.item:
+            if item == self.selected:
                 # If we'll yield the current item,
                 # update current line:
                 self.line = line
             self.line2idx[line] = idx
             yield item
             line += 1
-        if self.line is None and self.items:
+        if self.line is None and self.items and self.line2idx:
             # No current line, go to top item:
             self.line = 0
             idx = self.line2idx[self.line]
-            self.item = self.items[idx]
+            self.selected = self.items[idx]
+        if not self.line2idx:
+            self.selected = None
 
     def selected_item(self):
-        return self.item
+        return self.selected
 
     def move_to_line(self, line):
         if line in self.line2idx:
             self.line = line
         idx = self.line2idx.get(self.line, 0)
-        self.item = self.items[idx]
+        self.selected = self.items[idx]
 
     def key_down(self):
         self.move_to_line(self.line + 1)

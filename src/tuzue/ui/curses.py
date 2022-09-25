@@ -85,7 +85,7 @@ class UiCurses:
         for i, item in enumerate(view.visible_items(self.max_items())):
             self.winmenu.addstr(i, 0, item)
         if view.line is not None:
-            self.winmenu.addstr(view.line, 0, view.item, curses.A_REVERSE)
+            self.winmenu.addstr(view.line, 0, view.selected, curses.A_REVERSE)
         self.winmenu.noutrefresh()
         self.wininput.erase()
         self.wininput.addstr(0, 0, view.input.string)
