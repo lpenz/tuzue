@@ -12,20 +12,39 @@ import tuzue.input
 
 class View:
     def __init__(self):
-        self.items = []
-        self.line = 0
-        self.line2idx = {}
-        self.selected = None
+        # All items:
+        self.items_all = []
+        # Items filtered by input:
+        self.items_filtered = []
+        # Selected item, identified by items_filtered index:
+        self.selected_idx = 0
+        # Generator, when in use:
         self.generator = None
+        # Self-managed input object:
         self.input = tuzue.input.Input()
+        # Path, shown in header:
         self.path = ""
+        self.reset()
+
+    def reset(self):
+        self.items_all = []
+        self.items_filtered = []
+        self.selected_idx = None
+
+    def selected_item(self):
+        if self.selected_idx is not None:
+            return self.items_filtered[self.selected_idx]
+        return None
 
     def items_set(self, items):
-        self.items = items
-        if self.items:
-            self.selected = items[0]
+        """Sets (overrides) the whole items list"""
+        self.reset()
+        self.items_all = items
+        self.items_filtered_update()
 
     def item_generator_set(self, generator):
+        """Sets the item generator and resets the internal states as necessary"""
+        self.reset()
         self.generator = generator
 
     def item_generate(self):
@@ -38,56 +57,66 @@ class View:
         if not self.generator:
             return False
         try:
-            wasempty = self.items == []
-            self.items.append(next(self.generator))
-            if self.selected is None and wasempty:
-                self.selected = self.items[0]
+            wasempty = self.items_filtered == []
+            item = next(self.generator)
+            self.items_all.append(item)
+            if self.item_filter(item):
+                self.items_filtered.append(item)
+                if self.selected_idx is None and wasempty:
+                    self.selected_idx = 0
             return True
         except StopIteration:
             self.generator = None
             return False
 
+    def item_filter(self, item):
+        """Returns True if the provided item should be shown, given the current input"""
+        return not self.input.string or self.input.string in item
+
+    def items_filtered_update(self):
+        """Resets and updates the whole items_filtered list using the current input;
+        also resets the selected_idx if necessary"""
+        selected_item = None
+        if self.selected_idx is not None:
+            selected_item = self.items_filtered[self.selected_idx]
+        self.items_filtered = []
+        self.selected_idx = None
+        idx = 0
+        for item in self.items_all:
+            if self.item_filter(item):
+                self.items_filtered.append(item)
+                if item == selected_item:
+                    self.selected_idx = idx
+                idx += 1
+        if self.selected_idx is None and self.items_filtered:
+            self.selected_idx = 0
+
     def visible_items(self, max_items):
-        self.line2idx = {}
         line = 0
-        self.line = None
-        for idx, item in enumerate(self.items):
-            if self.input.string not in item:
-                continue
+        for idx, item in enumerate(self.items_filtered):
             if line >= max_items:
                 break
-            if item == self.selected:
-                # If we'll yield the current item,
-                # update current line:
-                self.line = line
-            self.line2idx[line] = idx
             yield item
             line += 1
-        if self.line is None and self.items and self.line2idx:
-            # No current line, go to top item:
-            self.line = 0
-            idx = self.line2idx[self.line]
-            self.selected = self.items[idx]
-        if not self.line2idx:
-            self.selected = None
 
-    def selected_item(self):
-        return self.selected
+    def selected_line(self):
+        return self.selected_idx
 
-    def move_to_line(self, line):
-        if line in self.line2idx:
-            self.line = line
-        idx = self.line2idx.get(self.line, 0)
-        self.selected = self.items[idx]
+    def move_to_idx(self, idx):
+        if idx < 0 or idx >= len(self.items_filtered):
+            return
+        self.selected_idx = idx
 
     def key_down(self):
-        self.move_to_line(self.line + 1)
+        self.move_to_idx(self.selected_idx + 1)
 
     def key_up(self):
-        self.move_to_line(self.line - 1)
+        self.move_to_idx(self.selected_idx - 1)
 
     def key_backspace(self):
         self.input.key_backspace()
+        self.items_filtered_update()
 
     def typed(self, char):
         self.input.typed(char)
+        self.items_filtered_update()
