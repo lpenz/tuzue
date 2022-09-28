@@ -16,14 +16,37 @@ class TestView(unittest.TestCase):
         self.assertEqual(list(self.view.visible_items(999)), [])
         self.assertEqual(self.view.selected_item(), None)
 
-    def test_visible(self):
-        items = [str(i) for i in range(0, 20)]
-        self.view.items_set(items)
-        self.assertEqual(list(self.view.visible_items(999)), items)
+    def test_generator(self):
+        itemlist = [str(i) for i in range(0, 20)]
+        items = (i for i in itemlist)
+        self.view.item_generator_set(items)
+        self.view.items_generate_all()
+        self.view.items_filtered_update()
+        self.assertEqual(list(self.view.visible_items(999)), itemlist)
+
+    def test_filtered(self):
+        itemlist = [str(i) for i in range(0, 20)]
+        self.view.items_set(itemlist)
         self.assertEqual(self.view.selected_item(), "0")
-        self.view.typed("2")
-        self.assertEqual(list(self.view.visible_items(999)), ["2", "12"])
-        self.assertEqual(self.view.selected_item(), "2")
+        self.view.typed("1")
+        self.assertEqual(
+            list(self.view.visible_items(999)),
+            ["1"] + ["1%d" % i for i in range(0, 10)],
+        )
+        self.assertEqual(self.view.selected_item(), "1")
+        self.view.key_down()
+        self.assertEqual(self.view.selected_item(), "10")
+        self.view.typed("0")
+        self.assertEqual(self.view.selected_item(), "10")
+        self.view.key_backspace()
+        self.assertEqual(self.view.selected_item(), "10")
+        self.view.key_up()
+        self.assertEqual(self.view.selected_item(), "1")
         self.view.typed("z")
         self.assertEqual(list(self.view.visible_items(999)), [])
         self.assertEqual(self.view.selected_item(), None)
+
+    def test_visible(self):
+        itemlist = [str(i) for i in range(0, 20)]
+        self.view.items_set(itemlist)
+        self.assertEqual(list(self.view.visible_items(3)), ["0", "1", "2"])

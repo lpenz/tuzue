@@ -69,6 +69,10 @@ class View:
             self.generator = None
             return False
 
+    def items_generate_all(self):
+        while self.item_generate():
+            pass
+
     def item_filter(self, item):
         """Returns True if the provided item should be shown, given the current input"""
         return not self.input.string or self.input.string in item
