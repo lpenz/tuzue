@@ -18,6 +18,10 @@ available.
 from contextlib import contextmanager
 import curses
 
+# Number of lines non-free lines already allocated to specific
+# functions:
+LINES_USED = 2
+
 
 class UiCurses:
     """Singleton that controls what is present in the ui"""
@@ -62,7 +66,7 @@ class UiCurses:
         )
         self.wininput.keypad(True)
         self.wininput.noutrefresh()
-        self.winmenu = curses.newwin(curses.LINES - 2, curses.COLS, 2, 0)
+        self.winmenu = curses.newwin(curses.LINES - LINES_USED, curses.COLS, 2, 0)
         self.winmenu.noutrefresh()
         curses.doupdate()
 
@@ -78,7 +82,7 @@ class UiCurses:
         curses.endwin()
 
     def max_items(self):
-        return curses.LINES - 2
+        return curses.LINES - LINES_USED
 
     def show(self, view):
         self.winmenu.erase()
@@ -94,6 +98,15 @@ class UiCurses:
         self.wininput.noutrefresh()
         self.winpath.erase()
         self.winpath.addstr(0, 0, view.path)
+        status = "%s/%d" % (
+            str(
+                view.selected_idx + 1
+                if view.selected_idx is not None
+                else view.selected_idx
+            ),
+            len(view.items_filtered),
+        )
+        self.winpath.addstr(0, curses.COLS - len(status) - 1, status)
         self.winpath.noutrefresh()
         curses.setsyx(self.wininput_y, len(self.prompt) + view.input.pos)
         curses.doupdate()
