@@ -40,8 +40,7 @@ def generator(delay=None):
 
 
 def navdir(path, delay):
-    view = tuzue.view.View()
-    view.item_generator_set(generator(delay))
+    view = tuzue.view.View(generator=generator(delay))
     view.path = "/" + "/".join(path)
     with tuzue.ui.curses.context() as ui:
         while True:

@@ -8,45 +8,51 @@ import unittest
 
 
 class TestView(unittest.TestCase):
-    def setUp(self):
-        self.view = tuzue.view.View()
-
     def test_empty(self):
-        self.view.items_set([])
-        self.assertEqual(list(self.view.visible_items(999)), [])
-        self.assertEqual(self.view.selected_item(), None)
+        view = tuzue.view.View(items=[])
+        self.assertEqual(list(view.screen_items()), [])
+        self.assertEqual(view.selected_item(), None)
 
     def test_generator(self):
         itemlist = [str(i) for i in range(0, 20)]
-        items = (i for i in itemlist)
-        self.view.item_generator_set(items)
-        self.view.items_generate_all()
-        self.view.items_filtered_update()
-        self.assertEqual(list(self.view.visible_items(999)), itemlist)
+        generator = (i for i in itemlist)
+        view = tuzue.view.View(generator=generator)
+        view.items_generate_all()
+        self.assertEqual(list(view.screen_items()), itemlist)
+        view.items_update()
+        self.assertEqual(list(view.screen_items()), itemlist)
 
     def test_filtered(self):
         itemlist = [str(i) for i in range(0, 20)]
-        self.view.items_set(itemlist)
-        self.assertEqual(self.view.selected_item(), "0")
-        self.view.typed("1")
+        view = tuzue.view.View(items=itemlist)
+        self.assertEqual(view.selected_item(), "0")
+        view.typed("1")
         self.assertEqual(
-            list(self.view.visible_items(999)),
+            list(view.screen_items()),
             ["1"] + ["1%d" % i for i in range(0, 10)],
         )
-        self.assertEqual(self.view.selected_item(), "1")
-        self.view.key_down()
-        self.assertEqual(self.view.selected_item(), "10")
-        self.view.typed("0")
-        self.assertEqual(self.view.selected_item(), "10")
-        self.view.key_backspace()
-        self.assertEqual(self.view.selected_item(), "10")
-        self.view.key_up()
-        self.assertEqual(self.view.selected_item(), "1")
-        self.view.typed("z")
-        self.assertEqual(list(self.view.visible_items(999)), [])
-        self.assertEqual(self.view.selected_item(), None)
+        self.assertEqual(view.selected_item(), "1")
+        view.key_up()
+        self.assertEqual(view.selected_item(), "1")
+        view.key_down()
+        self.assertEqual(view.selected_item(), "10")
+        view.typed("0")
+        self.assertEqual(view.selected_item(), "10")
+        view.key_backspace()
+        self.assertEqual(view.selected_item(), "10")
+        view.key_up()
+        self.assertEqual(view.selected_item(), "1")
+        view.typed("z")
+        self.assertEqual(list(view.screen_items()), [])
+        self.assertEqual(view.selected_item(), None)
 
-    def test_visible(self):
+    def test_screen(self):
         itemlist = [str(i) for i in range(0, 20)]
-        self.view.items_set(itemlist)
-        self.assertEqual(list(self.view.visible_items(3)), ["0", "1", "2"])
+        view = tuzue.view.View(items=itemlist)
+        view.screen_height_set(3)
+        self.assertEqual(list(view.screen_items()), ["0", "1", "2"])
+        for i in range(0, 3):
+            self.assertEqual(view.screen_selected_line(), i)
+            self.assertEqual(view.selected_idx, i)
+            self.assertEqual(view.selected_item(), str(i))
+            view.key_down()

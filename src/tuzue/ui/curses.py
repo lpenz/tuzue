@@ -85,17 +85,21 @@ class UiCurses:
         return curses.LINES - LINES_USED
 
     def show(self, view):
+        # Update menu:
         self.winmenu.erase()
-        for i, item in enumerate(view.visible_items(self.max_items())):
+        view.screen_height_set(self.max_items())
+        for i, item in enumerate(view.screen_items()):
             self.winmenu.addstr(i, 0, item)
-        if view.selected_line() is not None:
+        if view.screen_selected_line() is not None:
             self.winmenu.addstr(
-                view.selected_line(), 0, view.selected_item(), curses.A_REVERSE
+                view.screen_selected_line(), 0, view.selected_item(), curses.A_REVERSE
             )
         self.winmenu.noutrefresh()
+        # Update input:
         self.wininput.erase()
         self.wininput.addstr(0, 0, view.input.string)
         self.wininput.noutrefresh()
+        # Update path, with status:
         self.winpath.erase()
         self.winpath.addstr(0, 0, view.path)
         status = "%s/%d" % (
@@ -104,19 +108,24 @@ class UiCurses:
                 if view.selected_idx is not None
                 else view.selected_idx
             ),
-            len(view.items_filtered),
+            len(view.items),
         )
         self.winpath.addstr(0, curses.COLS - len(status) - 1, status)
         self.winpath.noutrefresh()
+        # Position cursor in prompt:
         curses.setsyx(self.wininput_y, len(self.prompt) + view.input.pos)
+        # Refresh screen:
         curses.doupdate()
 
     def interact(self, view):
+        # Generate first item:
         view.item_generate()
-        self.wininput.nodelay(bool(view.generator))
+        # Set nonblocking if we have more items to generate, otherwise
+        # set blocking mode:
+        self.wininput.nodelay(bool(view.item_generator))
         key = self.wininput.getch()
         if key in {curses.KEY_ENTER, 10, 13}:
-            # We are done
+            # If the user hit ENTER, we are done
             return True
         # Check if it's an edit
         edit_actions = {
