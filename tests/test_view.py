@@ -47,12 +47,30 @@ class TestView(unittest.TestCase):
         self.assertEqual(view.selected_item(), None)
 
     def test_screen(self):
-        itemlist = [str(i) for i in range(0, 20)]
+        itemlist = [str(i) for i in range(0, 10)]
         view = tuzue.view.View(items=itemlist)
         view.screen_height_set(3)
         self.assertEqual(list(view.screen_items()), ["0", "1", "2"])
         for i in range(0, 3):
-            self.assertEqual(view.screen_selected_line(), i)
             self.assertEqual(view.selected_idx, i)
             self.assertEqual(view.selected_item(), str(i))
+            self.assertEqual(view.screen_selected_line(), i)
             view.key_down()
+        for i in range(3, 10):
+            self.assertEqual(view.selected_idx, i)
+            self.assertEqual(view.selected_item(), str(i))
+            self.assertEqual(view.screen_selected_line(), 2)
+            view.key_down()
+        for i in range(9, 6, -1):
+            self.assertEqual(view.selected_idx, i)
+            self.assertEqual(view.selected_item(), str(i))
+            self.assertEqual(view.screen_selected_line(), i - 7)
+            view.key_up()
+        for i in range(6, -1, -1):
+            self.assertEqual(view.selected_idx, i)
+            self.assertEqual(view.selected_item(), str(i))
+            self.assertEqual(view.screen_selected_line(), 0)
+            view.key_up()
+        self.assertEqual(view.selected_idx, 0)
+        self.assertEqual(view.selected_item(), "0")
+        self.assertEqual(view.screen_selected_line(), 0)

@@ -22,8 +22,10 @@ class View:
         self.items = []
         # Selected item, identified by items index:
         self.selected_idx = None
-        # Screen-related members:
+        # Screen height, or number of visible items:
         self.screen_height = None
+        # Screen starts at this self.item idx:
+        self.screen_idx = None
         # Self-managed input object:
         self.input = tuzue.input.Input()
         # Path, shown in header:
@@ -38,6 +40,7 @@ class View:
         """
         self.items = list(self.items_all) or []
         self.selected_idx = 0 if self.items else None
+        self.screen_idx = 0 if self.screen_height else None
 
     # Item generation methods:
 
@@ -104,6 +107,14 @@ class View:
             return self.items[self.selected_idx]
         return None
 
+    def selected_in_screen(self):
+        if self.screen_height is None or self.selected_idx is None:
+            return True
+        return (
+            self.screen_idx <= self.selected_idx
+            and self.selected_idx < self.screen_idx + self.screen_height
+        )
+
     # Screen methods, used to generate the concrete view:
 
     def screen_height_set(self, height):
@@ -113,23 +124,28 @@ class View:
             self.reset()
 
     def screen_items(self):
-        line = 0
-        for idx, item in enumerate(self.items):
+        screen_idx = self.screen_idx or 0
+        for line, item in enumerate(self.items[screen_idx:]):
             if self.screen_height is not None and line >= self.screen_height:
                 break
             yield item
-            line += 1
 
     def screen_selected_line(self):
-        return self.selected_idx
+        if self.selected_idx is None:
+            return None
+        return self.selected_idx - (self.screen_idx or 0)
 
     # Key reactors:
 
     def key_down(self):
         self.selected_idx_set(self.selected_idx + 1)
+        if not self.selected_in_screen():
+            self.screen_idx += 1
 
     def key_up(self):
         self.selected_idx_set(self.selected_idx - 1)
+        if not self.selected_in_screen():
+            self.screen_idx -= 1
 
     def key_backspace(self):
         self.input.key_backspace()
