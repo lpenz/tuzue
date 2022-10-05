@@ -22,7 +22,7 @@ class TestView(unittest.TestCase):
         view.items_update()
         self.assertEqual(list(view.screen_items()), itemlist)
 
-    def test_filtered(self):
+    def test_filter(self):
         itemlist = [str(i) for i in range(0, 20)]
         view = tuzue.view.View(items=itemlist)
         self.assertEqual(view.selected_item(), "0")
@@ -74,3 +74,28 @@ class TestView(unittest.TestCase):
         self.assertEqual(view.selected_idx, 0)
         self.assertEqual(view.selected_item(), "0")
         self.assertEqual(view.screen_selected_line(), 0)
+
+    def test_screen_filter(self):
+        itemlist = [str(i) for i in range(0, 20)]
+        view = tuzue.view.View(items=itemlist)
+        view.screen_height_set(3)
+        self.assertEqual(list(view.screen_items()), ["0", "1", "2"])
+        self.assertEqual(view.selected_item(), "0")
+        view.typed("1")
+        self.assertEqual(list(view.screen_items()), ["1", "10", "11"])
+        self.assertEqual(view.selected_idx, 0)
+        self.assertEqual(view.selected_item(), "1")
+        self.assertEqual(view.screen_selected_line(), 0)
+        view.key_down()
+        self.assertEqual(list(view.screen_items()), ["1", "10", "11"])
+        self.assertEqual(view.selected_idx, 1)
+        self.assertEqual(view.selected_item(), "10")
+        self.assertEqual(view.screen_selected_line(), 1)
+        view.typed("9")
+        self.assertEqual(list(view.screen_items()), ["19"])
+        self.assertEqual(view.selected_item(), "19")
+        self.assertEqual(view.screen_selected_line(), 0)
+        view.key_backspace()
+        self.assertEqual(list(view.screen_items()), ["17", "18", "19"])
+        self.assertEqual(view.selected_item(), "19")
+        self.assertEqual(view.screen_selected_line(), 2)

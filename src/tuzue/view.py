@@ -94,6 +94,8 @@ class View:
                 idx += 1
         if self.selected_idx is None and self.items:
             self.selected_idx = 0
+        if not self.selected_in_screen():
+            self.screen_center()
 
     # Selected idx/items methods:
 
@@ -134,6 +136,17 @@ class View:
         if self.selected_idx is None:
             return None
         return self.selected_idx - (self.screen_idx or 0)
+
+    def screen_center(self):
+        mid = self.screen_height // 2
+        self.screen_idx = max(0, self.selected_idx - mid)
+        # If we can scroll down to show more items:
+        items_len = len(self.items)
+        if (
+            items_len > self.screen_height
+            and self.selected_idx > items_len - self.screen_height
+        ):
+            self.screen_idx = items_len - self.screen_height
 
     # Key reactors:
 
