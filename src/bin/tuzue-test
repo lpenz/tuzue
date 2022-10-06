@@ -19,8 +19,8 @@ def main():
     )
     parser.parse_args()
     struct = []
-    for i in range(0, 40):
-        struct.append(str(i) * 10)
+    for i in range(0, 400):
+        struct.append(str(i))
     print("selected:", tuzue.navigate(struct))
 
 
