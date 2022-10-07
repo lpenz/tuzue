@@ -99,3 +99,23 @@ class TestView(unittest.TestCase):
         self.assertEqual(list(view.screen_items()), ["17", "18", "19"])
         self.assertEqual(view.selected_item(), "19")
         self.assertEqual(view.screen_selected_line(), 2)
+
+    def test_screen_pg(self):
+        itemlist = [str(i) for i in range(0, 6)]
+        view = tuzue.view.View(items=itemlist)
+        view.screen_height_set(3)
+        view.key_pgdown()
+        self.assertEqual(list(view.screen_items()), ["2", "3", "4"])
+        self.assertEqual(view.selected_item(), "2")
+        view.key_pgup()
+        self.assertEqual(list(view.screen_items()), ["0", "1", "2"])
+        self.assertEqual(view.selected_item(), "2")
+        view.key_pgdown()
+        view.key_pgdown()
+        self.assertEqual(list(view.screen_items()), ["3", "4", "5"])
+        self.assertEqual(view.selected_item(), "5")
+        view.key_pgup()
+        view.key_pgup()
+        view.key_pgup()
+        self.assertEqual(list(view.screen_items()), ["0", "1", "2"])
+        self.assertEqual(view.selected_item(), "0")

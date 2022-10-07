@@ -132,6 +132,8 @@ class UiCurses:
             curses.KEY_DOWN: view.key_down,
             curses.KEY_UP: view.key_up,
             curses.KEY_BACKSPACE: view.key_backspace,
+            curses.KEY_PPAGE: view.key_pgup,
+            curses.KEY_NPAGE: view.key_pgdown,
         }
         action = edit_actions.get(key)
         if action:

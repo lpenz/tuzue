@@ -160,6 +160,22 @@ class View:
         if not self.selected_in_screen():
             self.screen_idx -= 1
 
+    def key_pgup(self):
+        self.screen_idx = self.screen_idx - self.screen_height + 1
+        if self.screen_idx < 0:
+            self.screen_idx = 0
+            self.selected_idx_set(0)
+        else:
+            self.selected_idx_set(self.screen_idx + self.screen_height - 1)
+
+    def key_pgdown(self):
+        self.screen_idx = self.screen_idx + self.screen_height - 1
+        if self.screen_idx > len(self.items) - self.screen_height:
+            self.screen_idx = len(self.items) - self.screen_height
+            self.selected_idx_set(len(self.items) - 1)
+        else:
+            self.selected_idx_set(self.screen_idx)
+
     def key_backspace(self):
         self.input.key_backspace()
         self.items_update()
