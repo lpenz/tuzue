@@ -117,25 +117,39 @@ class UiCurses:
         # Refresh screen:
         curses.doupdate()
 
+    def input_read(self):
+        key = self.wininput.getch()
+        if key == -1:
+            return key, None
+        keyname = curses.keyname(key)
+        if key == 27:
+            self.wininput.nodelay(True)
+            k = self.wininput.getch()
+            if k != -1:
+                keyname += curses.keyname(k)
+        return key, keyname
+
     def interact(self, view):
         # Generate first item:
         view.item_generate()
         # Set nonblocking if we have more items to generate, otherwise
         # set blocking mode:
         self.wininput.nodelay(bool(view.item_generator))
-        key = self.wininput.getch()
+        key, keyname = self.input_read()
+        if key == -1:
+            return False
         if key in {curses.KEY_ENTER, 10, 13}:
             # If the user hit ENTER, we are done
             return True
         # Check if it's an edit
         edit_actions = {
-            curses.KEY_DOWN: view.key_down,
-            curses.KEY_UP: view.key_up,
-            curses.KEY_BACKSPACE: view.key_backspace,
-            curses.KEY_PPAGE: view.key_pgup,
-            curses.KEY_NPAGE: view.key_pgdown,
+            b"KEY_DOWN": view.key_down,
+            b"KEY_UP": view.key_up,
+            b"KEY_BACKSPACE": view.key_backspace,
+            b"KEY_PPAGE": view.key_pgup,
+            b"KEY_NPAGE": view.key_pgdown,
         }
-        action = edit_actions.get(key)
+        action = edit_actions.get(keyname)
         if action:
             action()
         else:
