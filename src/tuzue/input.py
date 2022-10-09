@@ -7,15 +7,23 @@ An Input object has the state of the input line
 
 
 class Input:
-    def __init__(self):
-        self.string = ""
-        self.pos = 0
-
-    def key_backspace(self):
-        if self.string:
-            self.string = self.string[:-1]
-            self.pos -= 1
+    def __init__(self, string=""):
+        self.string = string
+        self.pos = len(string)
 
     def typed(self, char):
-        self.string += char
+        self.string = self.string[: self.pos] + char + self.string[self.pos :]
         self.pos += 1
+
+    def key_backspace(self):
+        if self.string and self.pos > 0:
+            self.string = self.string[: self.pos - 1] + self.string[self.pos :]
+            self.pos -= 1
+
+    def key_left(self):
+        if self.string and self.pos > 0:
+            self.pos -= 1
+
+    def key_right(self):
+        if self.pos < len(self.string):
+            self.pos += 1

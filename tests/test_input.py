@@ -8,12 +8,24 @@ import unittest
 
 
 class TestInput(unittest.TestCase):
-    def setUp(self):
-        self.input = tuzue.input.Input()
-
     def test_backspace(self):
+        input = tuzue.input.Input()
         for c in "test":
-            self.input.typed(c)
-        self.assertEqual(self.input.string, "test")
-        self.input.key_backspace()
-        self.assertEqual(self.input.string, "tes")
+            input.typed(c)
+        self.assertEqual(input.string, "test")
+        input.key_backspace()
+        self.assertEqual(input.string, "tes")
+
+    def test_arrows_backspace(self):
+        input = tuzue.input.Input("test")
+        self.assertEqual(input.string, "test")
+        input.key_left()
+        input.key_backspace()
+        self.assertEqual(input.string, "tet")
+        input.key_left()
+        input.key_left()
+        input.key_backspace()
+        self.assertEqual(input.string, "tet")
+        input.key_right()
+        input.key_backspace()
+        self.assertEqual(input.string, "et")

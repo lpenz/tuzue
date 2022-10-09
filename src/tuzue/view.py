@@ -176,10 +176,16 @@ class View:
         else:
             self.selected_idx_set(self.screen_idx)
 
+    def typed(self, char):
+        self.input.typed(char)
+        self.items_update()
+
     def key_backspace(self):
         self.input.key_backspace()
         self.items_update()
 
-    def typed(self, char):
-        self.input.typed(char)
-        self.items_update()
+    def key_left(self):
+        self.input.key_left()
+
+    def key_right(self):
+        self.input.key_right()
