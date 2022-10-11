@@ -150,6 +150,10 @@ class View:
 
     # Key reactors:
 
+    def typed(self, char):
+        self.input.typed(char)
+        self.items_update()
+
     def key_down(self):
         self.selected_idx_set(self.selected_idx + 1)
         if not self.selected_in_screen():
@@ -176,12 +180,12 @@ class View:
         else:
             self.selected_idx_set(self.screen_idx)
 
-    def typed(self, char):
-        self.input.typed(char)
-        self.items_update()
-
     def key_backspace(self):
         self.input.key_backspace()
+        self.items_update()
+
+    def key_delete(self):
+        self.input.key_delete()
         self.items_update()
 
     def key_left(self):

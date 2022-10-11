@@ -20,6 +20,10 @@ class Input:
             self.string = self.string[: self.pos - 1] + self.string[self.pos :]
             self.pos -= 1
 
+    def key_delete(self):
+        if self.string and self.pos < len(self.string):
+            self.string = self.string[: self.pos] + self.string[self.pos + 1 :]
+
     def key_left(self):
         if self.string and self.pos > 0:
             self.pos -= 1

@@ -145,11 +145,12 @@ class UiCurses:
         edit_actions = {
             b"KEY_DOWN": view.key_down,
             b"KEY_UP": view.key_up,
-            b"KEY_LEFT": view.key_left,
-            b"KEY_RIGHT": view.key_right,
-            b"KEY_BACKSPACE": view.key_backspace,
             b"KEY_PPAGE": view.key_pgup,
             b"KEY_NPAGE": view.key_pgdown,
+            b"KEY_BACKSPACE": view.key_backspace,
+            b"KEY_DC": view.key_delete,
+            b"KEY_LEFT": view.key_left,
+            b"KEY_RIGHT": view.key_right,
         }
         action = edit_actions.get(keyname)
         if action:
