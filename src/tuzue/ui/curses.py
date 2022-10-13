@@ -23,6 +23,10 @@ import curses
 LINES_USED = 2
 
 
+class CursesError(Exception):
+    pass
+
+
 class UiCurses:
     """Singleton that controls what is present in the ui"""
 
@@ -89,10 +93,16 @@ class UiCurses:
         self.winmenu.erase()
         view.screen_height_set(self.max_items())
         for i, item in enumerate(view.screen_items()):
-            self.winmenu.addstr(i, 0, item)
+            try:
+                self.winmenu.addstr(i, 0, item[0 : curses.COLS - 1])
+            except curses.error:
+                raise CursesError("could not addstr item {}\n".format(item))
         if view.screen_selected_line() is not None:
             self.winmenu.addstr(
-                view.screen_selected_line(), 0, view.selected_item(), curses.A_REVERSE
+                view.screen_selected_line(),
+                0,
+                view.selected_item()[0 : curses.COLS - 1],
+                curses.A_REVERSE,
             )
         self.winmenu.noutrefresh()
         # Update input:
@@ -101,7 +111,10 @@ class UiCurses:
         self.wininput.noutrefresh()
         # Update path, with status:
         self.winpath.erase()
-        self.winpath.addstr(0, 0, view.path)
+        try:
+            self.winpath.addstr(0, 0, view.path)
+        except curses.error:
+            raise CursesError("could not addstr path {}\n".format(view.path))
         status = "%s/%d" % (
             str(
                 view.selected_idx + 1
