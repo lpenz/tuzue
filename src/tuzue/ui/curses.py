@@ -27,6 +27,28 @@ class CursesError(Exception):
     pass
 
 
+class CursesWin:
+    def __init__(self, label, lines, cols, topline, leftcol):
+        self.cols = cols
+        self.label = label
+        self.win = curses.newwin(lines, cols, topline, leftcol)
+
+    def erase(self):
+        self.win.erase()
+
+    def noutrefresh(self):
+        self.win.noutrefresh()
+
+    def addstr(self, line, col, string, *args):
+        available = self.cols - col
+        if len(string) > available:
+            string = string[0 : (self.cols - col - 4)] + "..."
+        try:
+            self.win.addstr(line, col, string, *args)
+        except curses.error:
+            raise CursesError("win {} could not addstr {}\n".format(self.label, string))
+
+
 class UiCurses:
     """Singleton that controls what is present in the ui"""
 
@@ -58,19 +80,25 @@ class UiCurses:
             curses.use_default_colors()
         except Exception:
             pass
-        self.winpath = curses.newwin(1, curses.COLS, 0, 0)
+        self.winpath = CursesWin("path", 1, curses.COLS, 0, 0)
         self.winpath.noutrefresh()
         self.prompt = "> "
         self.wininput_y = 1
-        self.winprompt = curses.newwin(1, len(self.prompt) + 1, self.wininput_y, 0)
+        self.winprompt = CursesWin(
+            "prompt", 1, len(self.prompt) + 1, self.wininput_y, 0
+        )
         self.winprompt.addstr(0, 0, self.prompt)
         self.winprompt.noutrefresh()
-        self.wininput = curses.newwin(
-            1, curses.COLS - len(self.prompt), self.wininput_y, len(self.prompt)
+        self.wininput = CursesWin(
+            "input",
+            1,
+            curses.COLS - len(self.prompt),
+            self.wininput_y,
+            len(self.prompt),
         )
-        self.wininput.keypad(True)
+        self.wininput.win.keypad(True)
         self.wininput.noutrefresh()
-        self.winmenu = curses.newwin(curses.LINES - LINES_USED, curses.COLS, 2, 0)
+        self.winmenu = CursesWin("menu", curses.LINES - LINES_USED, curses.COLS, 2, 0)
         self.winmenu.noutrefresh()
         curses.doupdate()
 
@@ -93,15 +121,12 @@ class UiCurses:
         self.winmenu.erase()
         view.screen_height_set(self.max_items())
         for i, item in enumerate(view.screen_items()):
-            try:
-                self.winmenu.addstr(i, 0, item[0 : curses.COLS - 1])
-            except curses.error:
-                raise CursesError("could not addstr item {}\n".format(item))
+            self.winmenu.addstr(i, 0, item)
         if view.screen_selected_line() is not None:
             self.winmenu.addstr(
                 view.screen_selected_line(),
                 0,
-                view.selected_item()[0 : curses.COLS - 1],
+                view.selected_item(),
                 curses.A_REVERSE,
             )
         self.winmenu.noutrefresh()
@@ -111,10 +136,7 @@ class UiCurses:
         self.wininput.noutrefresh()
         # Update path, with status:
         self.winpath.erase()
-        try:
-            self.winpath.addstr(0, 0, view.path)
-        except curses.error:
-            raise CursesError("could not addstr path {}\n".format(view.path))
+        self.winpath.addstr(0, 0, view.path)
         status = "%s/%d" % (
             str(
                 view.selected_idx + 1
@@ -131,13 +153,13 @@ class UiCurses:
         curses.doupdate()
 
     def input_read(self):
-        key = self.wininput.getch()
+        key = self.wininput.win.getch()
         if key == -1:
             return key, None
         keyname = curses.keyname(key)
         if key == 27:
-            self.wininput.nodelay(True)
-            k = self.wininput.getch()
+            self.wininput.win.nodelay(True)
+            k = self.wininput.win.getch()
             if k != -1:
                 keyname += curses.keyname(k)
         return key, keyname
@@ -147,7 +169,7 @@ class UiCurses:
         view.item_generate()
         # Set nonblocking if we have more items to generate, otherwise
         # set blocking mode:
-        self.wininput.nodelay(bool(view.item_generator))
+        self.wininput.win.nodelay(bool(view.item_generator))
         key, keyname = self.input_read()
         if key == -1:
             return False
