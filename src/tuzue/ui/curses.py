@@ -28,10 +28,13 @@ class CursesError(Exception):
 
 
 class CursesWin:
-    def __init__(self, label, lines, cols, topline, leftcol):
-        self.cols = cols
+    def __init__(self, label, height, width, line, col):
+        self.height = height
+        self.width = width
+        self.line = line
+        self.col = col
         self.label = label
-        self.win = curses.newwin(lines, cols, topline, leftcol)
+        self.win = curses.newwin(height, width, line, col)
 
     def erase(self):
         self.win.erase()
@@ -40,9 +43,9 @@ class CursesWin:
         self.win.noutrefresh()
 
     def addstr(self, line, col, string, *args):
-        available = self.cols - col
+        available = self.width - col
         if len(string) > available:
-            string = string[0 : (self.cols - col - 4)] + "..."
+            string = string[0 : (self.width - col - 4)] + "..."
         try:
             self.win.addstr(line, col, string, *args)
         except curses.error:
@@ -54,6 +57,11 @@ class UiCurses:
 
     def __init__(self):
         self.stdscr = None
+        self.prompt = "> "
+        self.winpath = None
+        self.winprompt = None
+        self.wininput = None
+        self.winmenu = None
 
     def start(self):
         """
@@ -80,27 +88,7 @@ class UiCurses:
             curses.use_default_colors()
         except Exception:
             pass
-        self.winpath = CursesWin("path", 1, curses.COLS, 0, 0)
-        self.winpath.noutrefresh()
-        self.prompt = "> "
-        self.wininput_y = 1
-        self.winprompt = CursesWin(
-            "prompt", 1, len(self.prompt) + 1, self.wininput_y, 0
-        )
-        self.winprompt.addstr(0, 0, self.prompt)
-        self.winprompt.noutrefresh()
-        self.wininput = CursesWin(
-            "input",
-            1,
-            curses.COLS - len(self.prompt),
-            self.wininput_y,
-            len(self.prompt),
-        )
-        self.wininput.win.keypad(True)
-        self.wininput.noutrefresh()
-        self.winmenu = CursesWin("menu", curses.LINES - LINES_USED, curses.COLS, 2, 0)
-        self.winmenu.noutrefresh()
-        curses.doupdate()
+        self.layout()
 
     def end(self):
         if not self.stdscr:
@@ -113,8 +101,26 @@ class UiCurses:
         curses.nocbreak()
         curses.endwin()
 
+    def layout(self):
+        self.winpath = CursesWin("path", 1, curses.COLS, 0, 0)
+        self.winpath.noutrefresh()
+        self.wininput = CursesWin(
+            "input",
+            1,
+            curses.COLS - len(self.prompt),
+            1,
+            len(self.prompt),
+        )
+        self.wininput.win.keypad(True)
+        self.wininput.noutrefresh()
+        self.winprompt = CursesWin("prompt", 1, len(self.prompt) + 1, 1, 0)
+        self.winprompt.addstr(0, 0, self.prompt)
+        self.winprompt.noutrefresh()
+        self.winmenu = CursesWin("menu", curses.LINES - LINES_USED, curses.COLS, 2, 0)
+        self.winmenu.noutrefresh()
+
     def max_items(self):
-        return curses.LINES - LINES_USED
+        return self.winmenu.height
 
     def show(self, view):
         # Update menu:
@@ -148,7 +154,7 @@ class UiCurses:
         self.winpath.addstr(0, curses.COLS - len(status) - 1, status)
         self.winpath.noutrefresh()
         # Position cursor in prompt:
-        curses.setsyx(self.wininput_y, len(self.prompt) + view.input.pos)
+        curses.setsyx(self.wininput.line, len(self.prompt) + view.input.pos)
         # Refresh screen:
         curses.doupdate()
 
