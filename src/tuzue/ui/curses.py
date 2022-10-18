@@ -27,6 +27,14 @@ class CursesError(Exception):
     pass
 
 
+@contextmanager
+def winfocus(win):
+    try:
+        yield win
+    finally:
+        win.noutrefresh()
+
+
 class CursesWin:
     def __init__(self, label, height, width, line, col):
         self.height = height
@@ -50,6 +58,9 @@ class CursesWin:
             self.win.addstr(line, col, string, *args)
         except curses.error:
             raise CursesError("win {} could not addstr {}\n".format(self.label, string))
+
+    def set_cursor(self, line, col):
+        curses.setsyx(self.line + line, self.col + col)
 
 
 class UiCurses:
@@ -102,59 +113,63 @@ class UiCurses:
         curses.endwin()
 
     def layout(self):
-        self.winpath = CursesWin("path", 1, curses.COLS, 0, 0)
-        self.winpath.noutrefresh()
-        self.wininput = CursesWin(
-            "input",
-            1,
-            curses.COLS - len(self.prompt),
-            1,
-            len(self.prompt),
-        )
-        self.wininput.win.keypad(True)
-        self.wininput.noutrefresh()
-        self.winprompt = CursesWin("prompt", 1, len(self.prompt) + 1, 1, 0)
-        self.winprompt.addstr(0, 0, self.prompt)
-        self.winprompt.noutrefresh()
-        self.winmenu = CursesWin("menu", curses.LINES - LINES_USED, curses.COLS, 2, 0)
-        self.winmenu.noutrefresh()
+        with winfocus(CursesWin("path", 1, curses.COLS, 0, 0)) as win:
+            self.winpath = win
+        with winfocus(
+            CursesWin(
+                "input",
+                1,
+                curses.COLS - len(self.prompt),
+                1,
+                len(self.prompt),
+            )
+        ) as win:
+            win.win.keypad(True)
+            self.wininput = win
+        with winfocus(CursesWin("prompt", 1, len(self.prompt) + 1, 1, 0)) as win:
+            win.addstr(0, 0, self.prompt)
+            self.winprompt = win
+        with winfocus(
+            CursesWin("menu", curses.LINES - LINES_USED, curses.COLS, 2, 0)
+        ) as win:
+            self.winmenu = win
 
     def max_items(self):
         return self.winmenu.height
 
     def show(self, view):
         # Update menu:
-        self.winmenu.erase()
-        view.screen_height_set(self.max_items())
-        for i, item in enumerate(view.screen_items()):
-            self.winmenu.addstr(i, 0, item)
-        if view.screen_selected_line() is not None:
-            self.winmenu.addstr(
-                view.screen_selected_line(),
-                0,
-                view.selected_item(),
-                curses.A_REVERSE,
-            )
-        self.winmenu.noutrefresh()
+        with winfocus(self.winmenu) as win:
+            win.erase()
+            view.screen_height_set(self.max_items())
+            for i, item in enumerate(view.screen_items()):
+                win.addstr(i, 0, item)
+            if view.screen_selected_line() is not None:
+                win.addstr(
+                    view.screen_selected_line(),
+                    0,
+                    view.selected_item(),
+                    curses.A_REVERSE,
+                )
         # Update input:
-        self.wininput.erase()
-        self.wininput.addstr(0, 0, view.input.string)
-        self.wininput.noutrefresh()
+        with winfocus(self.wininput) as win:
+            win.erase()
+            win.addstr(0, 0, view.input.string)
         # Update path, with status:
-        self.winpath.erase()
-        self.winpath.addstr(0, 0, view.path)
-        status = "%s/%d" % (
-            str(
-                view.selected_idx + 1
-                if view.selected_idx is not None
-                else view.selected_idx
-            ),
-            len(view.items),
-        )
-        self.winpath.addstr(0, curses.COLS - len(status) - 1, status)
-        self.winpath.noutrefresh()
+        with winfocus(self.winpath) as win:
+            win.erase()
+            win.addstr(0, 0, view.path)
+            status = "%s/%d" % (
+                str(
+                    view.selected_idx + 1
+                    if view.selected_idx is not None
+                    else view.selected_idx
+                ),
+                len(view.items),
+            )
+            win.addstr(0, curses.COLS - len(status) - 1, status)
         # Position cursor in prompt:
-        curses.setsyx(self.wininput.line, len(self.prompt) + view.input.pos)
+        self.winprompt.set_cursor(0, len(self.prompt) + view.input.pos)
         # Refresh screen:
         curses.doupdate()
 
