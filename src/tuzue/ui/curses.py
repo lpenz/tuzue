@@ -173,7 +173,8 @@ class UiCurses:
         # Refresh screen:
         curses.doupdate()
 
-    def input_read(self):
+    def input_read(self, nodelay):
+        self.wininput.win.nodelay(nodelay)
         key = self.wininput.win.getch()
         if key == -1:
             return key, None
@@ -190,8 +191,10 @@ class UiCurses:
         view.item_generate()
         # Set nonblocking if we have more items to generate, otherwise
         # set blocking mode:
-        self.wininput.win.nodelay(bool(view.item_generator))
-        key, keyname = self.input_read()
+        key, keyname = self.input_read(bool(view.item_generator))
+        return self.input_process(view, key, keyname)
+
+    def input_process(self, view, key, keyname):
         if key == -1:
             return False
         if key in {curses.KEY_ENTER, 10, 13}:
