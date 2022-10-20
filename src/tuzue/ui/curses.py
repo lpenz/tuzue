@@ -9,22 +9,25 @@ Should be instantiated as a singleton.
 
 This class is used to display a particular View instance, and allows
 us to have several views on the stack and switch between then
-efficiently. It's also a bridge between the View class and the
-downstream ui implementation, even though for now only curses is
-available.
+efficiently. It serves as a bridge between the View class and the
+downstream ui implementation - but for now only curses is available.
 """
 
 
 from contextlib import contextmanager
 import curses
 
-# Number of lines non-free lines already allocated to specific
-# functions:
-LINES_USED = 2
-
 
 class CursesError(Exception):
     pass
+
+
+class Windows:
+    def __init__(self):
+        self.path = None
+        self.prompt = None
+        self.input = None
+        self.menu = None
 
 
 @contextmanager
@@ -69,10 +72,7 @@ class UiCurses:
     def __init__(self):
         self.stdscr = None
         self.prompt = "> "
-        self.winpath = None
-        self.winprompt = None
-        self.wininput = None
-        self.winmenu = None
+        self.win = Windows()
 
     def start(self):
         """
@@ -113,33 +113,24 @@ class UiCurses:
         curses.endwin()
 
     def layout(self):
-        with winfocus(CursesWin("path", 1, curses.COLS, 0, 0)) as win:
-            self.winpath = win
-        with winfocus(
-            CursesWin(
-                "input",
-                1,
-                curses.COLS - len(self.prompt),
-                1,
-                len(self.prompt),
-            )
-        ) as win:
-            win.win.keypad(True)
-            self.wininput = win
+        lines = curses.LINES
+        cols = curses.COLS
+        self.win.path = CursesWin("path", 1, cols, 0, 0)
         with winfocus(CursesWin("prompt", 1, len(self.prompt) + 1, 1, 0)) as win:
             win.addstr(0, 0, self.prompt)
-            self.winprompt = win
-        with winfocus(
-            CursesWin("menu", curses.LINES - LINES_USED, curses.COLS, 2, 0)
-        ) as win:
-            self.winmenu = win
+            self.win.prompt = win
+        inputwidth = cols - len(self.prompt)
+        with winfocus(CursesWin("input", 1, inputwidth, 1, len(self.prompt))) as win:
+            win.win.keypad(True)
+            self.win.input = win
+        self.win.menu = CursesWin("menu", lines - 2, cols, 2, 0)
 
     def max_items(self):
-        return self.winmenu.height
+        return self.win.menu.height
 
     def show(self, view):
         # Update menu:
-        with winfocus(self.winmenu) as win:
+        with winfocus(self.win.menu) as win:
             win.erase()
             view.screen_height_set(self.max_items())
             for i, item in enumerate(view.screen_items()):
@@ -152,11 +143,11 @@ class UiCurses:
                     curses.A_REVERSE,
                 )
         # Update input:
-        with winfocus(self.wininput) as win:
+        with winfocus(self.win.input) as win:
             win.erase()
             win.addstr(0, 0, view.input.string)
         # Update path, with status:
-        with winfocus(self.winpath) as win:
+        with winfocus(self.win.path) as win:
             win.erase()
             win.addstr(0, 0, view.path)
             status = "%s/%d" % (
@@ -169,19 +160,19 @@ class UiCurses:
             )
             win.addstr(0, curses.COLS - len(status) - 1, status)
         # Position cursor in prompt:
-        self.winprompt.set_cursor(0, len(self.prompt) + view.input.pos)
+        self.win.prompt.set_cursor(0, len(self.prompt) + view.input.pos)
         # Refresh screen:
         curses.doupdate()
 
     def input_read(self, nodelay):
-        self.wininput.win.nodelay(nodelay)
-        key = self.wininput.win.getch()
+        self.win.input.win.nodelay(nodelay)
+        key = self.win.input.win.getch()
         if key == -1:
             return key, None
         keyname = curses.keyname(key)
         if key == 27:
-            self.wininput.win.nodelay(True)
-            k = self.wininput.win.getch()
+            self.win.input.win.nodelay(True)
+            k = self.win.input.win.getch()
             if k != -1:
                 keyname += curses.keyname(k)
         return key, keyname
