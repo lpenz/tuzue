@@ -22,23 +22,9 @@ class CursesError(Exception):
     pass
 
 
-class Windows:
-    def __init__(self):
-        self.path = None
-        self.prompt = None
-        self.input = None
-        self.menu = None
-
-
-@contextmanager
-def winfocus(win):
-    try:
-        yield win
-    finally:
-        win.noutrefresh()
-
-
 class CursesWin:
+    """Class that encapsulates a curses window"""
+
     def __init__(self, label, height, width, line, col):
         self.height = height
         self.width = width
@@ -66,12 +52,38 @@ class CursesWin:
         curses.setsyx(self.line + line, self.col + col)
 
 
-class UiCurses:
-    """Singleton that controls what is present in the ui"""
+@contextmanager
+def winfocus(win):
+    """Window context - makes the code more ergonomic and
+    schedules an update upon exit"""
+    try:
+        yield win
+    finally:
+        win.noutrefresh()
+
+
+class Windows:
+    """The standard collection of windows we use, for ergonomy"""
+
+    def __init__(self):
+        self.path = None
+        self.prompt = None
+        self.input = None
+        self.menu = None
+
+
+class UiCursesBase:
+    """
+    Base classe for the curses UI that provides the functionality but not the layout.
+
+    Derived classes should def layout(self), override the prompt, etc.
+    They can also def input_process to provide additional bindings.
+    """
+
+    prompt = "> "
 
     def __init__(self):
         self.stdscr = None
-        self.prompt = "> "
         self.win = Windows()
 
     def start(self):
@@ -113,17 +125,7 @@ class UiCurses:
         curses.endwin()
 
     def layout(self):
-        lines = curses.LINES
-        cols = curses.COLS
-        self.win.path = CursesWin("path", 1, cols, 0, 0)
-        with winfocus(CursesWin("prompt", 1, len(self.prompt) + 1, 1, 0)) as win:
-            win.addstr(0, 0, self.prompt)
-            self.win.prompt = win
-        inputwidth = cols - len(self.prompt)
-        with winfocus(CursesWin("input", 1, inputwidth, 1, len(self.prompt))) as win:
-            win.win.keypad(True)
-            self.win.input = win
-        self.win.menu = CursesWin("menu", lines - 2, cols, 2, 0)
+        raise NotImplementedError
 
     def max_items(self):
         return self.win.menu.height
@@ -217,9 +219,35 @@ class UiCurses:
         return False
 
 
+class UiCursesSimple(UiCursesBase):
+    """
+    Provides the following layout:
+
+    path-----------------------------
+    prompt- input--------------------
+    menu-----------------------------
+    |||||||||||||||||||||||||||||||||
+    |||||||||||||||||||||||||||||||||
+    """
+
+    def layout(self):
+        lines = curses.LINES
+        cols = curses.COLS
+        self.win.path = CursesWin("path", 1, cols, 0, 0)
+        with winfocus(CursesWin("prompt", 1, len(self.prompt) + 1, 1, 0)) as win:
+            win.addstr(0, 0, self.prompt)
+            self.win.prompt = win
+        inputwidth = cols - len(self.prompt)
+        with winfocus(CursesWin("input", 1, inputwidth, 1, len(self.prompt))) as win:
+            win.win.keypad(True)
+            self.win.input = win
+        menulines = lines - 2
+        self.win.menu = CursesWin("menu", menulines, cols, 2, 0)
+
+
 @contextmanager
-def context():
-    ui = UiCurses()
+def context(uiclass=UiCursesSimple):
+    ui = uiclass()
     try:
         ui.start()
         yield ui
