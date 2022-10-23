@@ -4,4 +4,22 @@
 # tuzue
 
 Fuzzy-filtering menu-based interactive curses interface for python,
-plus utilities
+plus utilities.
+
+
+## Library usage
+
+Basic usage of the library is very simple:
+
+```{.py}
+import tuzue
+
+fruits = [ "avocado", "berry", "cherry", "durian", "eggfruit" ]
+favorite = tuzue.navigate(fruits, "What is your favorite fruit?")
+print("Your favorite fruit is", favorite)
+```
+
+That generates the following possible interaction:
+
+![demo](demos/demo1.gif)
+

@@ -2,3 +2,4 @@
 __pycache__/
 *.pyc
 /src/tuzue.egg-info/
+/demos/*.cast
