@@ -8,9 +8,8 @@ import tuzue.view
 __version__ = "0.0.1"
 
 
-def navigate(struct, title):
-    view = tuzue.view.View(items=struct)
-    view.path = title
+def navigate(struct, title=""):
+    view = tuzue.view.View(items=struct, title=title)
     done = None
     with tuzue.ui.curses.context() as ui:
         while not done:

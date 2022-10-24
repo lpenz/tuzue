@@ -34,8 +34,7 @@ def generator(mandict):
 
 def manmenu():
     mandict = {}
-    view = tuzue.view.View(generator=generator(mandict))
-    view.path = "Man page menu"
+    view = tuzue.view.View(title="Man page menu", generator=generator(mandict))
     while True:
         with tuzue.ui.curses.context() as ui:
             done = False

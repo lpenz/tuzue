@@ -11,7 +11,7 @@ import tuzue.input
 
 
 class View:
-    def __init__(self, items=None, generator=None):
+    def __init__(self, title="", items=None, generator=None):
         # One of the mutually-exclusive arguments must be provided:
         assert (items is None) != (generator is None)
         # All items:
@@ -28,8 +28,8 @@ class View:
         self.screen_idx = None
         # Self-managed input object:
         self.input = tuzue.input.Input()
-        # Path, shown in header:
-        self.path = ""
+        # Title, shown in header:
+        self.title = title
         # Reset to sync selected_idx with items:
         self.reset()
 

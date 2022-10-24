@@ -32,8 +32,7 @@ def generator(itemdict, data):
 
 def jsonexplore(path0, data):
     itemdict = {}
-    view = tuzue.view.View(generator=generator(itemdict, data))
-    view.path = "".join(path0)
+    view = tuzue.view.View(title="".join(path0), generator=generator(itemdict, data))
     while True:
         with tuzue.ui.curses.context() as ui:
             done = False

@@ -66,7 +66,7 @@ class Windows:
     """The standard collection of windows we use, for ergonomy"""
 
     def __init__(self):
-        self.path = None
+        self.title = None
         self.prompt = None
         self.input = None
         self.menu = None
@@ -148,10 +148,10 @@ class UiCursesBase:
         with winfocus(self.win.input) as win:
             win.erase()
             win.addstr(0, 0, view.input.string)
-        # Update path, with status:
-        with winfocus(self.win.path) as win:
+        # Update title, with status:
+        with winfocus(self.win.title) as win:
             win.erase()
-            win.addstr(0, 0, view.path)
+            win.addstr(0, 0, view.title)
             status = "%s/%d" % (
                 str(
                     view.selected_idx + 1
@@ -223,7 +223,7 @@ class UiCursesSimple(UiCursesBase):
     """
     Provides the following layout:
 
-    path-----------------------------
+    title----------------------------
     prompt- input--------------------
     menu-----------------------------
     |||||||||||||||||||||||||||||||||
@@ -233,7 +233,7 @@ class UiCursesSimple(UiCursesBase):
     def layout(self):
         lines = curses.LINES
         cols = curses.COLS
-        self.win.path = CursesWin("path", 1, cols, 0, 0)
+        self.win.title = CursesWin("title", 1, cols, 0, 0)
         with winfocus(CursesWin("prompt", 1, len(self.prompt) + 1, 1, 0)) as win:
             win.addstr(0, 0, self.prompt)
             self.win.prompt = win

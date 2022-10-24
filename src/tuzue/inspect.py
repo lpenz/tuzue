@@ -47,8 +47,7 @@ class Inspector:
 
     def inspect(self, path0, obj, lvl=0):
         objdict = {}
-        view = tuzue.view.View(generator=generator(obj, objdict))
-        view.path = "".join(path0)
+        view = tuzue.view.View(title="".join(path0), generator=generator(obj, objdict))
         while not self.done:
             done = False
             while not done:
