@@ -28,6 +28,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python3 -m pip install .
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.0.2
+      - uses: ammaraskar/sphinx-action@master
+        with:
+          docs-folder: "docs/"
+      - uses: actions/upload-artifact@v1
+        with:
+          name: docs
+          path: docs/_build/
   test:
     strategy:
       matrix:
