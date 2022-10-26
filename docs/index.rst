@@ -20,7 +20,7 @@ Basic usage of the library is very simple:
 
 That generates the following possible interaction:
 
-.. image:: ../demos/demo1.gif
+.. image:: ../demos/demo-navigate.gif
 
 
 .. toctree::

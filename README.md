@@ -22,5 +22,5 @@ print("Your favorite fruit is", favorite)
 
 That generates the following possible interaction:
 
-![demo](demos/demo1.gif)
+![demo-navigate](demos/demo-navigate.gif)
 

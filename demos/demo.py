@@ -5,6 +5,8 @@ import sys
 
 import pexpect
 
+DOWN = "\x1bOB"
+
 
 class Session(pexpect.spawn):
     def __init__(self):
@@ -16,7 +18,7 @@ class Session(pexpect.spawn):
         )
         self.logfile_read = sys.stdout
         self.prompt = ">>> "
-        self.delaybeforesend = 0.01
+        self.delaybeforesend = 0.02
         self.expect_exact(self.prompt)
 
     def slowsend(self, tosend):
@@ -45,7 +47,7 @@ class Session(pexpect.spawn):
         self.wait()
 
 
-def do_main():
+def demo_navigate():
     py = Session()
     py.sendwait("import tuzue\r")
     py.sendwait("""fruits = [ "avocado", "berry", "cherry", "durian", "eggfruit" ]\r""")
@@ -53,13 +55,12 @@ def do_main():
     py.sleep()
     py.slowsend("\r")
     py.sleep()
-    down = "\x1bOB"
-    py.sendsleep(down)
-    py.sendsleep(down)
-    py.sendsleep(down)
+    py.sendsleep(DOWN)
+    py.sendsleep(DOWN)
+    py.sendsleep(DOWN)
     py.slowsend("e")
     py.sleep()
-    py.sendsleep(down)
+    py.sendsleep(DOWN)
     py.slowsend("\r")
     py.waitprompt()
     py.sendwait("""print("Your favorite fruit is:", favorite)\r""")
@@ -68,9 +69,11 @@ def do_main():
 
 
 def main():
+    demos = {"demo-navigate": demo_navigate}
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.parse_args()
-    do_main()
+    parser.add_argument("demo", nargs=1, choices=demos.keys())
+    args = parser.parse_args()
+    demos[args.demo[0]]()
 
 
 if __name__ == "__main__":

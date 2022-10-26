@@ -160,7 +160,7 @@ class UiCursesBase:
                 ),
                 len(view.items),
             )
-            win.addstr(0, curses.COLS - len(status) - 1, status)
+            win.addstr(0, win.width - len(status) - 1, status)
         # Position cursor in prompt:
         self.win.prompt.set_cursor(0, len(self.prompt) + view.input.pos)
         # Refresh screen:
