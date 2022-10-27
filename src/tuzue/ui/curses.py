@@ -14,8 +14,10 @@ downstream ui implementation - but for now only curses is available.
 """
 
 
-from contextlib import contextmanager
 import curses
+from contextlib import contextmanager
+
+from tuzue.view import View
 
 
 class CursesError(Exception):
@@ -81,6 +83,18 @@ class UiCursesBase:
     """
 
     prompt = "> "
+    edit_actions = {}
+    edit_actions_default = {
+        b"KEY_ENTER": View.key_enter,
+        b"KEY_DOWN": View.key_down,
+        b"KEY_UP": View.key_up,
+        b"KEY_PPAGE": View.key_pgup,
+        b"KEY_NPAGE": View.key_pgdown,
+        b"KEY_BACKSPACE": View.key_backspace,
+        b"KEY_DC": View.key_delete,
+        b"KEY_LEFT": View.key_left,
+        b"KEY_RIGHT": View.key_right,
+    }
 
     def __init__(self):
         self.stdscr = None
@@ -192,30 +206,24 @@ class UiCursesBase:
             return False
         if key in {curses.KEY_ENTER, 10, 13}:
             # If the user hit ENTER, we are done
-            return True
-        # Check if it's an edit
-        edit_actions = {
-            b"KEY_DOWN": view.key_down,
-            b"KEY_UP": view.key_up,
-            b"KEY_PPAGE": view.key_pgup,
-            b"KEY_NPAGE": view.key_pgdown,
-            b"KEY_BACKSPACE": view.key_backspace,
-            b"KEY_DC": view.key_delete,
-            b"KEY_LEFT": view.key_left,
-            b"KEY_RIGHT": view.key_right,
-        }
-        action = edit_actions.get(keyname)
+            key = curses.KEY_ENTER
+            keyname = b"KEY_ENTER"
+        # Check if it's a custom edit_action
+        action = self.edit_actions.get(keyname)
         if action:
-            action()
-        else:
-            # Check if it's a regular typed char:
-            char = None
-            try:
-                char = chr(key)
-            except ValueError:
-                pass
-            if char and char.isprintable():
-                view.typed(char)
+            return action(view, key, keyname)
+        # Check if it's a default edit_action
+        action = self.edit_actions_default.get(keyname)
+        if action:
+            return action(view, key, keyname)
+        # Otherwise, check if it's a regular typed char:
+        char = None
+        try:
+            char = chr(key)
+        except ValueError:
+            pass
+        if char and char.isprintable():
+            view.typed(char)
         return False
 
 

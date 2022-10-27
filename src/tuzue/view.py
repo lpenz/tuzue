@@ -154,17 +154,20 @@ class View:
         self.input.typed(char)
         self.items_update()
 
-    def key_down(self):
+    def key_enter(self, key=None, keyname=None):
+        return True
+
+    def key_down(self, key=None, keyname=None):
         self.selected_idx_set(self.selected_idx + 1)
         if not self.selected_in_screen():
             self.screen_idx += 1
 
-    def key_up(self):
+    def key_up(self, key=None, keyname=None):
         self.selected_idx_set(self.selected_idx - 1)
         if not self.selected_in_screen():
             self.screen_idx -= 1
 
-    def key_pgup(self):
+    def key_pgup(self, key=None, keyname=None):
         self.screen_idx = self.screen_idx - self.screen_height + 1
         if self.screen_idx < 0:
             self.screen_idx = 0
@@ -172,7 +175,7 @@ class View:
         else:
             self.selected_idx_set(self.screen_idx + self.screen_height - 1)
 
-    def key_pgdown(self):
+    def key_pgdown(self, key=None, keyname=None):
         self.screen_idx = self.screen_idx + self.screen_height - 1
         if self.screen_idx > len(self.items) - self.screen_height:
             self.screen_idx = len(self.items) - self.screen_height
@@ -180,16 +183,16 @@ class View:
         else:
             self.selected_idx_set(self.screen_idx)
 
-    def key_backspace(self):
+    def key_backspace(self, key=None, keyname=None):
         self.input.key_backspace()
         self.items_update()
 
-    def key_delete(self):
+    def key_delete(self, key=None, keyname=None):
         self.input.key_delete()
         self.items_update()
 
-    def key_left(self):
+    def key_left(self, key=None, keyname=None):
         self.input.key_left()
 
-    def key_right(self):
+    def key_right(self, key=None, keyname=None):
         self.input.key_right()
