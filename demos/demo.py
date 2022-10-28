@@ -68,8 +68,33 @@ def demo_navigate():
     py.pquit()
 
 
+def demo_pdb():
+    py = Session()
+    py.sendwait("import tuzue.inspect\r")
+    py.sendwait("import tuzue\r")
+    py.slowsend('r = tuzue.inspect.inspect(tuzue, "tuzue")')
+    py.sleep(2)
+    py.sendsleep("\r", 1)
+    for _ in range(6):
+        py.sendsleep(DOWN)
+    py.sendsleep("\r", 1)
+    py.sendsleep("c", 1)
+    py.sendsleep("\r", 1)
+    py.sendsleep("B", 1)
+    py.sendsleep("\r", 1)
+    py.slowsend("a")
+    py.sleep(1)
+    py.sendsleep(DOWN, 1)
+    py.sendsleep("\r", 1)
+    py.sendsleep("\r", 2)
+    py.sendwait("\r")
+    py.slowsend("print(tuzue.ui.curses.UiCursesBase.edit_actions_default)\r")
+    py.sleep(5)
+    py.pquit()
+
+
 def main():
-    demos = {"demo-navigate": demo_navigate}
+    demos = {"demo-navigate": demo_navigate, "demo-pdb": demo_pdb}
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("demo", nargs=1, choices=demos.keys())
     args = parser.parse_args()

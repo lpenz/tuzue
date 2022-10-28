@@ -24,3 +24,13 @@ That generates the following possible interaction:
 
 ![demo-navigate](demos/demo-navigate.gif)
 
+
+## Inspecting in pdb
+
+tuzue is very useful to inspect object trees in [pdb]. Example session
+where we use tuzue to inspect itself:
+
+![demo-pdb](demos/demo-pdb.gif)
+
+
+[pdb]: https://docs.python.org/3/library/pdb.html
