@@ -202,6 +202,13 @@ class UiCursesBase:
         return self.input_process(view, key, keyname)
 
     def input_process(self, view, key, keyname):
+        # this is for mac osx  Mac osx 10.15.7 TODO: Test on other platforms.
+        if key == 127:
+            keyname = b"KEY_BACKSPACE"
+        if keyname in self.edit_actions:
+            self.edit_actions[keyname](view)
+        # End mac osx terminal fix  Mac osx 10.15.7 (19H2)
+
         if key == -1:
             return False
         if key in {curses.KEY_ENTER, 10, 13}:
