@@ -12,7 +12,7 @@ plus utilities.
 
 Basic usage of the library is very simple:
 
-```{.py}
+```python
 import tuzue
 
 fruits = [ "avocado", "berry", "cherry", "durian", "eggfruit" ]
