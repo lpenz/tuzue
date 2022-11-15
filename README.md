@@ -22,7 +22,7 @@ print("Your favorite fruit is", favorite)
 
 That generates the following possible interaction:
 
-![demo-navigate](demos/demo-navigate.gif)
+[![Menu navigation demo](demos/demo-navigate.gif)](https://github.com/lpenz/tuzue/raw/main/demos/demo-navigate.gif)
 
 
 ## Inspecting in pdb
@@ -30,7 +30,7 @@ That generates the following possible interaction:
 tuzue is very useful to inspect object trees in [pdb]. Example session
 where we use tuzue to inspect itself:
 
-![demo-pdb](demos/demo-pdb.gif)
+[![PDB usage demo](demos/demo-pdb.gif)](https://github.com/lpenz/tuzue/raw/main/demos/demo-pdb.gif)
 
 
 [pdb]: https://docs.python.org/3/library/pdb.html
