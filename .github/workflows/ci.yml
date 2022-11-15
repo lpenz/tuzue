@@ -79,6 +79,9 @@ jobs:
     needs: [ omnilint, black, install, docs, deb, test ]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3.1.0
+      - id: version
+        uses: docker://lpenz/ghaction-version-gen:0.11.0
       - name: download deb
         uses: actions/download-artifact@v3.0.1
         with:
