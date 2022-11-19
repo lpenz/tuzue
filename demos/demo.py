@@ -70,18 +70,21 @@ def demo_navigate():
 
 def demo_pdb():
     py = Session()
-    py.sendwait("import tuzue.inspect\r")
     py.sendwait("import tuzue\r")
-    py.slowsend('r = tuzue.inspect.inspect(tuzue, "tuzue")')
+    py.slowsend('r = tuzue.inspect(tuzue, "tuzue")')
     py.sleep(2)
     py.sendsleep("\r", 1)
-    for _ in range(6):
+    for _ in range(7):
         py.sendsleep(DOWN)
+    # Select ui
     py.sendsleep("\r", 1)
-    py.sendsleep("c", 1)
+    # Select curses
+    py.sendsleep("cur", 1)
     py.sendsleep("\r", 1)
+    # Select UiCursesBase
     py.sendsleep("B", 1)
     py.sendsleep("\r", 1)
+    # Select edit_actions_default
     py.slowsend("a")
     py.sleep(1)
     py.sendsleep(DOWN, 1)

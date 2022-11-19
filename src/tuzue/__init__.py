@@ -2,6 +2,7 @@
 # This file is subject to the terms and conditions defined in
 # file 'LICENSE', which is part of this source code package.
 
+import tuzue.inspector
 import tuzue.ui.curses
 import tuzue.view
 
@@ -16,3 +17,7 @@ def navigate(struct, title=""):
             ui.show(view)
             done = ui.interact(view)
     return view.selected_item()
+
+
+def inspect(*args, **kwargs):
+    return tuzue.inspector.inspect(*args, **kwargs)
