@@ -32,11 +32,17 @@ def generator(obj, objdict):
             yield process(objdict, key, value)
     for key in dir(obj):
         if not key.startswith("_"):
-            value = getattr(obj, key)
+            try:
+                value = getattr(obj, key)
+            except AttributeError as e:
+                value = e
             yield process(objdict, key, value, identity, ".", "")
     for key in dir(obj):
         if key.startswith("_"):
-            value = getattr(obj, key)
+            try:
+                value = getattr(obj, key)
+            except AttributeError as e:
+                value = e
             yield process(objdict, key, value, identity, ".", "")
 
 
