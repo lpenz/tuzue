@@ -1,7 +1,0 @@
----
-name: sphinx
-description: sphinx
-runs:
-  using: docker
-  image: Dockerfile
-

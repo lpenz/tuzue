@@ -7,104 +7,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3.1.0
       - uses: docker://lpenz/omnilint:0.5.1
-  black:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - uses: piotrpawlaczek/python-blacken@v22.3.0
-  install:
-    strategy:
-      matrix:
-        python-version:
-          - "3.9"
-          - "3.10"
-          - "3.11"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - uses: actions/setup-python@v4.3.0
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: python -m pip install build twine --user
-      - run: python -m build --sdist --wheel --outdir dist/
-      - run: twine check dist/*
-      - run: python3 -m pip install .
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - uses: ./.github/actions/sphinx
-      - uses: actions/upload-artifact@v3.1.1
-        with:
-          name: docs
-          path: docs/_build/
-  deb:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.11.0
-      - uses: docker://lpenz/ghaction-python-stdeb:0.3
-        with:
-          debian_revision: ${{ steps.version.outputs.distance }}
-      - uses: actions/upload-artifact@v3.1.1
-        with:
-          name: deb
-          if-no-files-found: error
-          path: '*.deb'
-  test:
-    strategy:
-      matrix:
-        python-version:
-          - "3.9"
-          - "3.10"
-          - "3.11"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - uses: actions/setup-python@v4.3.0
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: lpenz/ghaction-pytest-cov@v1
-      - uses: AndreMiras/coveralls-python-action@v20201129
-        with:
-          parallel: true
-          flag-name: python-${{ matrix.python-version }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-  coverage-finish:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: AndreMiras/coveralls-python-action@v20201129
-        with:
-          parallel-finished: true
-  publish-packagecloud:
-    needs: [ omnilint, black, install, docs, deb, test ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.11.0
-      - name: download deb
-        uses: actions/download-artifact@v3.0.1
-        with:
-          name: deb
-      - uses: docker://lpenz/ghaction-packagecloud:0.4
-        if: steps.version.outputs.version_commit != ''
-        with:
-          repository: debian/debian/bullseye
-        env:
-          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
-  publish-pypi:
-    needs: [ omnilint, black, install, docs, deb, test ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3.1.0
-      - id: version
-        uses: docker://lpenz/ghaction-version-gen:0.11.0
-      - run: python -m pip install build --user
-      - run: python -m build --sdist --wheel --outdir dist/
-      - uses: pypa/gh-action-pypi-publish@v1.5.1
-        if: steps.version.outputs.version_tagged != ''
-        with:
-          password: ${{ secrets.PYPI_TOKEN }}
+  python:
+    uses: lpenz/ghworkflow-python/.github/workflows/python.yml@v0.1.0
+    with:
+      coveralls: true
+      deb: true
+      publish_pypi: true
+      publish_github_release: true
+      publish_packagecloud: true
+      publish_packagecloud_repository: |
+        ["debian/debian/bullseye", "ubuntu/ubuntu/focal"]
+    secrets:
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
