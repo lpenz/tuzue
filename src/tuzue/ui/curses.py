@@ -185,8 +185,12 @@ class UiCursesBase:
         key = self.win.input.win.getch()
         if key == -1:
             return key, None
+        if key in {curses.KEY_ENTER, 10, 13}:
+            return curses.KEY_ENTER, b"KEY_ENTER"
+        if key == 127:
+            return curses.KEY_BACKSPACE, b"KEY_BACKSPACE"
         keyname = curses.keyname(key)
-        if key == 27:
+        if key == 27:  # ESC
             self.win.input.win.nodelay(True)
             k = self.win.input.win.getch()
             if k != -1:
@@ -204,10 +208,6 @@ class UiCursesBase:
     def input_process(self, view, key, keyname):
         if key == -1:
             return False
-        if key in {curses.KEY_ENTER, 10, 13}:
-            # If the user hit ENTER, we are done
-            key = curses.KEY_ENTER
-            keyname = b"KEY_ENTER"
         # Check if it's a custom edit_action
         action = self.edit_actions.get(keyname)
         if action:
