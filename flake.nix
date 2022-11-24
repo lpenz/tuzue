@@ -16,7 +16,7 @@
       machNix = mach-nix.lib."${system}";
       tuzue = machNix.buildPythonApplication {
         pname = "tuzue";
-        version = "0.1.1";
+        version = "0.1.2";
         src = self;
       };
     in rec {

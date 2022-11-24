@@ -6,7 +6,7 @@ import tuzue.inspector
 import tuzue.ui.curses
 import tuzue.view
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 def navigate(struct, title=""):
