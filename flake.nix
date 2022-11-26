@@ -12,17 +12,17 @@
   outputs = { self, nixpkgs, flake-utils, mach-nix }:
     let
       system = "x86_64-linux";
-      pkgs = pkgs.${system}.default;
       machNix = mach-nix.lib."${system}";
       tuzue = machNix.buildPythonApplication {
-        pname = "tuzue";
-        version = "0.1.2";
         src = self;
       };
-    in rec {
-      packages.${system}.default = tuzue;
+    in {
+      packages.${system} = {
+        inherit tuzue;
+        default = tuzue;
+      };
 
-      apps = {
+      apps.${system} = {
         tuzue-chdir = {
           type = "app";
           program = "${tuzue}/bin/tuzue-chdir";
