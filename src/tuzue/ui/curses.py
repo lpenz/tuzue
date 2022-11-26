@@ -90,6 +90,8 @@ class UiCursesBase:
         b"KEY_UP": View.key_up,
         b"KEY_PPAGE": View.key_pgup,
         b"KEY_NPAGE": View.key_pgdown,
+        b"KEY_HOME": View.key_home,
+        b"KEY_END": View.key_end,
         b"KEY_BACKSPACE": View.key_backspace,
         b"KEY_DC": View.key_delete,
         b"KEY_LEFT": View.key_left,

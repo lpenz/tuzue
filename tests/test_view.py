@@ -119,3 +119,14 @@ class TestView(unittest.TestCase):
         view.key_pgup()
         self.assertEqual(list(view.screen_items()), ["0", "1", "2"])
         self.assertEqual(view.selected_item(), "0")
+
+    def test_screen_homeend(self):
+        itemlist = [str(i) for i in range(0, 6)]
+        view = tuzue.view.View(items=itemlist)
+        view.screen_height_set(3)
+        view.key_end()
+        self.assertEqual(list(view.screen_items()), ["3", "4", "5"])
+        self.assertEqual(view.selected_item(), "5")
+        view.key_home()
+        self.assertEqual(list(view.screen_items()), ["0", "1", "2"])
+        self.assertEqual(view.selected_item(), "0")

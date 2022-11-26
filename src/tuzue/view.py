@@ -183,6 +183,14 @@ class View:
         else:
             self.selected_idx_set(self.screen_idx)
 
+    def key_home(self, key=None, keyname=None):
+        self.screen_idx = 0
+        self.selected_idx_set(0)
+
+    def key_end(self, key=None, keyname=None):
+        self.screen_idx = len(self.items) - self.screen_height
+        self.selected_idx_set(len(self.items) - 1)
+
     def key_backspace(self, key=None, keyname=None):
         self.input.key_backspace()
         self.items_update()
