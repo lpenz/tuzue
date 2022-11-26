@@ -94,6 +94,10 @@ class UiCursesBase:
         b"KEY_DC": View.key_delete,
         b"KEY_LEFT": View.key_left,
         b"KEY_RIGHT": View.key_right,
+        b"^A": View.key_bol,
+        b"^E": View.key_eol,
+        b"^U": View.key_killbol,
+        b"^K": View.key_killeol,
     }
 
     def __init__(self):

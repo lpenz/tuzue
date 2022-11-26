@@ -31,3 +31,16 @@ class Input:
     def key_right(self):
         if self.pos < len(self.string):
             self.pos += 1
+
+    def key_bol(self):
+        self.pos = 0
+
+    def key_eol(self):
+        self.pos = len(self.string)
+
+    def key_killbol(self):
+        self.string = self.string[self.pos :]
+        self.pos = 0
+
+    def key_killeol(self):
+        self.string = self.string[: self.pos]

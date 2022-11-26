@@ -46,3 +46,28 @@ class TestInput(unittest.TestCase):
         self.assertEqual(input.string, "s")
         input.key_delete()
         input.key_delete()
+
+    def test_boleol_delete(self):
+        input = tuzue.input.Input("tst")
+        self.assertEqual(input.string, "tst")
+        input.key_bol()
+        self.assertEqual(input.string, "tst")
+        input.key_delete()
+        self.assertEqual(input.string, "st")
+        input.key_eol()
+        input.key_backspace()
+        self.assertEqual(input.string, "s")
+
+    def test_killbol(self):
+        input = tuzue.input.Input("asdf zxcv")
+        for i in range(5):
+            input.key_left()
+        input.key_killbol()
+        self.assertEqual(input.string, " zxcv")
+
+    def test_killeol(self):
+        input = tuzue.input.Input("asdf zxcv")
+        for i in range(4):
+            input.key_left()
+        input.key_killeol()
+        self.assertEqual(input.string, "asdf ")

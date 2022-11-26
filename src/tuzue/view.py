@@ -196,3 +196,15 @@ class View:
 
     def key_right(self, key=None, keyname=None):
         self.input.key_right()
+
+    def key_bol(self, key=None, keyname=None):
+        self.input.key_bol()
+
+    def key_eol(self, key=None, keyname=None):
+        self.input.key_eol()
+
+    def key_killbol(self, key=None, keyname=None):
+        self.input.key_killbol()
+
+    def key_killeol(self, key=None, keyname=None):
+        self.input.key_killeol()
