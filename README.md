@@ -27,8 +27,14 @@ That generates the following possible interaction:
 
 ## Inspecting in pdb
 
-tuzue is very useful to inspect object trees in [pdb]. Example session
-where we use tuzue to inspect itself:
+tuzue is very useful to inspect object trees in [pdb], like so:
+
+```python
+(Pdb) import tuzue
+(Pdb) tuzue.inspect( ... )
+```
+
+Example session where we use tuzue to inspect itself:
 
 [![PDB usage demo](demos/demo-pdb.gif)](https://github.com/lpenz/tuzue/raw/main/demos/demo-pdb.gif)
 
