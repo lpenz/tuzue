@@ -10,9 +10,9 @@ After a path is selected via the "." entry, it's printed to stderr and the progr
 exists with 0.
 """
 
-import sys
-import os
 import argparse
+import os
+import sys
 import time
 
 import tuzue

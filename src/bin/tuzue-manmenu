@@ -7,9 +7,9 @@
 Choose a man page to read interactively from a menu with fuzzy search
 """
 
+import argparse
 import os
 import re
-import argparse
 import subprocess
 
 import tuzue
