@@ -2,11 +2,15 @@
 # This file is subject to the terms and conditions defined in
 # file 'LICENSE', which is part of this source code package.
 
+import importlib.metadata
+
 import tuzue.inspector
 import tuzue.ui.curses
 import tuzue.view
 
-__version__ = "0.1.2"
+
+def version():
+    return importlib.metadata.version("tuzue")
 
 
 def navigate(struct, title=""):

@@ -54,7 +54,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("json", nargs=1, type=argparse.FileType("r"))
     parser.add_argument(
-        "--version", "-V", action="version", version="%(prog)s " + tuzue.__version__
+        "--version", "-V", action="version", version="%(prog)s " + tuzue.version()
     )
     args = parser.parse_args()
     data = json.load(args.json[0])
