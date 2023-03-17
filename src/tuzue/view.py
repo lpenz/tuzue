@@ -7,7 +7,7 @@ necessarily the current view, but it can be so by using the Screen
 instance.
 """
 
-import tuzue.input
+import tuzue.binput
 
 
 class View:
@@ -27,7 +27,7 @@ class View:
         # Screen starts at this self.item idx:
         self.screen_idx = None
         # Self-managed input object:
-        self.input = tuzue.input.Input()
+        self.binput = tuzue.binput.Binput()
         # Title, shown in header:
         self.title = title
         # Reset to sync selected_idx with items:
@@ -75,7 +75,7 @@ class View:
 
     def item_filter(self, item):
         """Returns True if the provided item should be shown, given the current input"""
-        return not self.input.string or self.input.string in item
+        return not self.binput.string or self.binput.string in item
 
     def items_update(self):
         """Resets and updates the whole self.items list using the current input;
@@ -151,7 +151,7 @@ class View:
     # Key reactors:
 
     def typed(self, char):
-        self.input.typed(char)
+        self.binput.typed(char)
         self.items_update()
 
     def key_enter(self, key=None, keyname=None):
@@ -192,27 +192,27 @@ class View:
         self.selected_idx_set(len(self.items) - 1)
 
     def key_backspace(self, key=None, keyname=None):
-        self.input.key_backspace()
+        self.binput.key_backspace()
         self.items_update()
 
     def key_delete(self, key=None, keyname=None):
-        self.input.key_delete()
+        self.binput.key_delete()
         self.items_update()
 
     def key_left(self, key=None, keyname=None):
-        self.input.key_left()
+        self.binput.key_left()
 
     def key_right(self, key=None, keyname=None):
-        self.input.key_right()
+        self.binput.key_right()
 
     def key_bol(self, key=None, keyname=None):
-        self.input.key_bol()
+        self.binput.key_bol()
 
     def key_eol(self, key=None, keyname=None):
-        self.input.key_eol()
+        self.binput.key_eol()
 
     def key_killbol(self, key=None, keyname=None):
-        self.input.key_killbol()
+        self.binput.key_killbol()
 
     def key_killeol(self, key=None, keyname=None):
-        self.input.key_killeol()
+        self.binput.key_killeol()

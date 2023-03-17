@@ -2,11 +2,11 @@
 # This file is subject to the terms and conditions defined in
 # file 'LICENSE', which is part of this source code package.
 """
-An Input object has the state of the input line
+A Binput object has the state of the input line
 """
 
 
-class Input:
+class Binput:
     def __init__(self, string=""):
         self.string = string
         self.pos = len(string)
@@ -44,3 +44,11 @@ class Input:
 
     def key_killeol(self):
         self.string = self.string[: self.pos]
+
+    def key_killwordleft(self):
+        start = self.pos - 1
+        while not self.string[start].isspace() and start > 0:
+            start -= 1
+        left = self.string[0:start]
+        right = self.string[self.pos :]
+        self.string = left + right

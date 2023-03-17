@@ -12,10 +12,10 @@ Subpackages
 Submodules
 ----------
 
-tuzue.input module
+tuzue.binput module
 ------------------
 
-.. automodule:: tuzue.input
+.. automodule:: tuzue.binput
    :members:
    :undoc-members:
    :show-inheritance:

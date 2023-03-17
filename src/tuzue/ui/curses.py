@@ -70,7 +70,7 @@ class Windows:
     def __init__(self):
         self.title = None
         self.prompt = None
-        self.input = None
+        self.binput = None
         self.menu = None
 
 
@@ -167,7 +167,7 @@ class UiCursesBase:
         # Update input:
         with winfocus(self.win.input) as win:
             win.erase()
-            win.addstr(0, 0, view.input.string)
+            win.addstr(0, 0, view.binput.string)
         # Update title, with status:
         with winfocus(self.win.title) as win:
             win.erase()
@@ -182,7 +182,7 @@ class UiCursesBase:
             )
             win.addstr(0, win.width - len(status) - 1, status)
         # Position cursor in prompt:
-        self.win.prompt.set_cursor(0, len(self.prompt) + view.input.pos)
+        self.win.prompt.set_cursor(0, len(self.prompt) + view.binput.pos)
         # Refresh screen:
         curses.doupdate()
 
