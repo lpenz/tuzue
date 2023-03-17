@@ -216,3 +216,7 @@ class View:
 
     def key_killeol(self, key=None, keyname=None):
         self.binput.key_killeol()
+
+    def key_killwordleft(self, key=None, keyname=None):
+        self.binput.key_killwordleft()
+        self.items_update()

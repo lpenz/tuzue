@@ -46,9 +46,19 @@ class Binput:
         self.string = self.string[: self.pos]
 
     def key_killwordleft(self):
+        if self.pos == 0:
+            return
         start = self.pos - 1
+        while self.string[start].isspace() and start > 0:
+            start -= 1
         while not self.string[start].isspace() and start > 0:
             start -= 1
+        if start == 0:
+            self.string = ""
+            self.pos = 0
+            return
+        start += 1
         left = self.string[0:start]
         right = self.string[self.pos :]
         self.string = left + right
+        self.pos = start

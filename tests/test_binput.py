@@ -2,9 +2,9 @@
 # This file is subject to the terms and conditions defined in
 # file 'LICENSE', which is part of this source code package.
 
-import tuzue.binput
-
 import unittest
+
+import tuzue.binput
 
 
 class TestInput(unittest.TestCase):
@@ -71,3 +71,28 @@ class TestInput(unittest.TestCase):
             binput.key_left()
         binput.key_killeol()
         self.assertEqual(binput.string, "asdf ")
+
+    def test_key_killwordleft(self):
+        binput = tuzue.binput.Binput("asdf")
+        binput.key_killwordleft()
+        self.assertEqual(binput.string, "")
+        self.assertEqual(binput.pos, 0)
+        binput = tuzue.binput.Binput("asdf zxcv 1234")
+        binput.key_killwordleft()
+        self.assertEqual(binput.string, "asdf zxcv ")
+        binput = tuzue.binput.Binput("asdf zxcv 1234")
+        binput.pos = 0
+        binput.key_killwordleft()
+        self.assertEqual(binput.string, "asdf zxcv 1234")
+        binput = tuzue.binput.Binput("asdf zxcv 1234")
+        binput.pos = 9
+        binput.key_killwordleft()
+        self.assertEqual(binput.string, "asdf  1234")
+        binput = tuzue.binput.Binput("asdf zxcv 1234")
+        binput.pos = 10
+        binput.key_killwordleft()
+        self.assertEqual(binput.string, "asdf 1234")
+        binput = tuzue.binput.Binput("asdf zxcv 1234")
+        binput.pos = 8
+        binput.key_killwordleft()
+        self.assertEqual(binput.string, "asdf v 1234")

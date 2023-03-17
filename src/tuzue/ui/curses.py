@@ -114,6 +114,7 @@ class UiCursesBase:
         b"^E": View.key_eol,
         b"^U": View.key_killbol,
         b"^K": View.key_killeol,
+        b"^[KEY_BACKSPACE": View.key_killwordleft,
     }
 
     def __init__(self):
