@@ -10,6 +10,7 @@ Interactive interface tests with mock data
 import argparse
 
 import tuzue
+import tuzue.ui.curses
 
 
 def main():
@@ -21,6 +22,7 @@ def main():
     struct = []
     for i in range(0, 400):
         struct.append(str(i))
+    tuzue.ui.curses.debug_on("tuzue-debug.txt")
     print("selected:", tuzue.navigate(struct))
 
 
