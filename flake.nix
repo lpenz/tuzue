@@ -15,7 +15,7 @@
         pkgs = nixpkgs.legacyPackages."${system}";
         tuzue = pkgs.python3Packages.buildPythonApplication {
           pname = "tuzue";
-          version = "0.1.3";
+          version = "0.1.4";
           src = self;
         };
       in
