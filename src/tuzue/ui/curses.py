@@ -15,23 +15,10 @@ downstream ui implementation - but for now only curses is available.
 
 
 import curses
-import datetime
-import os
 from contextlib import contextmanager
 
+from tuzue.logger import logger
 from tuzue.view import View
-
-
-DEBUG_FILE = None
-
-
-def debug_on(filename):
-    global DEBUG_FILE
-    DEBUG_FILE = filename
-    try:
-        os.unlink(DEBUG_FILE)
-    except FileNotFoundError:
-        pass
 
 
 class CursesError(Exception):
@@ -216,10 +203,7 @@ class UiCursesBase:
             k = self.win.input.win.getch()
             if k != -1:
                 keyname += curses.keyname(k)
-        if DEBUG_FILE:
-            with open(DEBUG_FILE, "a") as fd:
-                now = datetime.datetime.now().isoformat()
-                fd.write(f"{now} key {key} name {keyname}\n")
+        logger.debug(f"key {key} name {keyname}")
         return key, keyname
 
     def interact(self, view):

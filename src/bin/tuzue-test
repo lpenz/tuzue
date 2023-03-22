@@ -10,7 +10,7 @@ Interactive interface tests with mock data
 import argparse
 
 import tuzue
-import tuzue.ui.curses
+import tuzue.logger
 
 
 def main():
@@ -18,11 +18,18 @@ def main():
     parser.add_argument(
         "--version", "-V", action="version", version="%(prog)s " + tuzue.version()
     )
-    parser.parse_args()
+    parser.add_argument(
+        "--debug",
+        "-d",
+        default=None,
+        help="Write debug information to the provided file",
+    )
+    args = parser.parse_args()
     struct = []
     for i in range(0, 400):
         struct.append(str(i))
-    tuzue.ui.curses.debug_on("tuzue-debug.txt")
+    if args.debug:
+        tuzue.logger.debug_on(args.debug)
     print("selected:", tuzue.navigate(struct))
 
 
