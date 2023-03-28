@@ -5,10 +5,10 @@ jobs:
   omnilint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.5.0
       - uses: docker://lpenz/omnilint:0.5.1
   python:
-    uses: lpenz/ghworkflow-python/.github/workflows/python.yml@v0.1.0
+    uses: lpenz/ghworkflow-python/.github/workflows/python.yml@v0.3.0
     with:
       coveralls: true
       deb: true
@@ -23,8 +23,8 @@ jobs:
   nix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.1.0
-      - uses: cachix/install-nix-action@v18
+      - uses: actions/checkout@v3.5.0
+      - uses: cachix/install-nix-action@v20
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - run: nix build
@@ -33,12 +33,12 @@ jobs:
     needs: [ omnilint, python, nix ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v3.5.0
         with:
           fetch-depth: 0
       - id: version
         uses: docker://lpenz/ghaction-version-gen:0.11.0
-      - uses: cachix/install-nix-action@v18
+      - uses: cachix/install-nix-action@v20
         with:
           nix_path: nixpkgs=channel:nixos-unstable
       - uses: cachix/cachix-action@v12
