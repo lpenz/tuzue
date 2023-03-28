@@ -131,7 +131,7 @@ class UiCursesBase:
             curses.start_color()
             # Reset colors to default
             curses.use_default_colors()
-        except Exception:
+        except curses.error:
             pass
         self.layout()
 
