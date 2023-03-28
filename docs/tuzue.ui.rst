@@ -4,10 +4,10 @@ tuzue.ui package
 Submodules
 ----------
 
-tuzue.ui.curses module
+tuzue.ui.tcurses module
 ----------------------
 
-.. automodule:: tuzue.ui.curses
+.. automodule:: tuzue.ui.tcurses
    :members:
    :undoc-members:
    :show-inheritance:

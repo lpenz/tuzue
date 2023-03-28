@@ -34,7 +34,7 @@ def jsonexplore(path0, data):
     itemdict = {}
     view = tuzue.view.View(title="".join(path0), generator=generator(itemdict, data))
     while True:
-        with tuzue.ui.curses.context() as ui:
+        with tuzue.ui.tcurses.context() as ui:
             done = False
             while not done:
                 ui.show(view)

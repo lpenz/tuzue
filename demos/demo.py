@@ -91,7 +91,7 @@ def demo_pdb():
     py.sendsleep("\r", 1)
     py.sendsleep("\r", 2)
     py.sendwait("\r")
-    py.slowsend("print(tuzue.ui.curses.UiCursesBase.edit_actions_default)\r")
+    py.slowsend("print(tuzue.ui.tcurses.UiCursesBase.edit_actions_default)\r")
     py.sleep(5)
     py.pquit()
 

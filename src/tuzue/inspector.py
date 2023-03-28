@@ -82,7 +82,7 @@ def inspect(obj=None, name=None):
     path = []
     if name:
         path = [name]
-    with tuzue.ui.curses.context() as ui:
+    with tuzue.ui.tcurses.context() as ui:
         inspector = Inspector(ui)
         result = None
         while not inspector.done:

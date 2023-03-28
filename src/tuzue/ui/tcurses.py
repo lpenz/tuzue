@@ -16,6 +16,7 @@ downstream ui implementation - but for now only curses is available.
 
 import curses
 from contextlib import contextmanager
+from typing import Dict
 
 from tuzue.logger import logger
 from tuzue.view import View
@@ -84,7 +85,7 @@ class UiCursesBase:
     """
 
     prompt = "> "
-    edit_actions = {}
+    edit_actions: Dict[bytes, object] = {}
     edit_actions_default = {
         b"KEY_ENTER": View.key_enter,
         b"KEY_DOWN": View.key_down,

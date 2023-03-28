@@ -5,7 +5,7 @@
 import importlib.metadata
 
 import tuzue.inspector
-import tuzue.ui.curses
+import tuzue.ui.tcurses
 import tuzue.view
 
 
@@ -16,7 +16,7 @@ def version():
 def navigate(struct, title=""):
     view = tuzue.view.View(items=struct, title=title)
     done = None
-    with tuzue.ui.curses.context() as ui:
+    with tuzue.ui.tcurses.context() as ui:
         while not done:
             ui.show(view)
             done = ui.interact(view)
