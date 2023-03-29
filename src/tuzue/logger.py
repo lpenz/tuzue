@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger("tuzue")
 
 
-def debug_on(filename):
+def debug_on(filename: str) -> None:
     handler = logging.FileHandler(filename, mode="w")
     formatter = logging.Formatter("%(asctime)s %(message)s")
     handler.setLevel(logging.DEBUG)

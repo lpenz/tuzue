@@ -16,7 +16,7 @@ downstream ui implementation - but for now only curses is available.
 
 import curses
 from contextlib import contextmanager
-from typing import Dict
+from typing import Callable, Dict, Generator, Iterator, Optional
 
 from tuzue.logger import logger
 from tuzue.view import View
@@ -29,7 +29,9 @@ class CursesError(Exception):
 class CursesWin:
     """Class that encapsulates a curses window"""
 
-    def __init__(self, label, height, width, line, col):
+    def __init__(
+        self, label: str, height: int, width: int, line: int, col: int
+    ) -> None:
         self.height = height
         self.width = width
         self.line = line
@@ -37,13 +39,13 @@ class CursesWin:
         self.label = label
         self.win = curses.newwin(height, width, line, col)
 
-    def erase(self):
+    def erase(self) -> None:
         self.win.erase()
 
-    def noutrefresh(self):
+    def noutrefresh(self) -> None:
         self.win.noutrefresh()
 
-    def addstr(self, line, col, string, *args):
+    def addstr(self, line: int, col: int, string: str, *args: int) -> None:
         available = self.width - col
         if len(string) > available:
             string = string[0 : (self.width - col - 4)] + "..."
@@ -52,12 +54,12 @@ class CursesWin:
         except curses.error:
             raise CursesError("win {} could not addstr {}\n".format(self.label, string))
 
-    def set_cursor(self, line, col):
+    def set_cursor(self, line: int, col: int) -> None:
         curses.setsyx(self.line + line, self.col + col)
 
 
 @contextmanager
-def winfocus(win):
+def winfocus(win: CursesWin) -> Generator[CursesWin, None, None]:
     """Window context - makes the code more ergonomic and
     schedules an update upon exit"""
     try:
@@ -69,11 +71,13 @@ def winfocus(win):
 class Windows:
     """The standard collection of windows we use, for ergonomy"""
 
-    def __init__(self):
-        self.title = None
-        self.prompt = None
-        self.binput = None
-        self.menu = None
+    def __init__(
+        self, title: CursesWin, prompt: CursesWin, binput: CursesWin, menu: CursesWin
+    ) -> None:
+        self.title = title
+        self.prompt = prompt
+        self.binput = binput
+        self.menu = menu
 
 
 class UiCursesBase:
@@ -85,7 +89,7 @@ class UiCursesBase:
     """
 
     prompt = "> "
-    edit_actions: Dict[bytes, object] = {}
+    edit_actions: Dict[bytes, Callable[[View, int, bytes], bool]] = {}
     edit_actions_default = {
         b"KEY_ENTER": View.key_enter,
         b"KEY_DOWN": View.key_down,
@@ -105,11 +109,11 @@ class UiCursesBase:
         b"^[KEY_BACKSPACE": View.key_killwordleft,
     }
 
-    def __init__(self):
-        self.stdscr = None
-        self.win = Windows()
+    def __init__(self) -> None:
+        self.stdscr: Optional[curses._CursesWindow] = None
+        self.win: Optional[Windows] = None
 
-    def start(self):
+    def start(self) -> None:
         """
         Based on
         https://github.com/enthought/Python-2.7.3/blob/master/Lib/curses/wrapper.py
@@ -136,39 +140,45 @@ class UiCursesBase:
             pass
         self.layout()
 
-    def end(self):
+    def end(self) -> None:
         if not self.stdscr:
             return
         # Set everything back to normal
         if curses.has_colors():
             curses.use_default_colors()
-        self.stdscr.keypad(0)
+        self.stdscr.keypad(False)
         curses.echo()
         curses.nocbreak()
         curses.endwin()
 
-    def layout(self):
+    def layout(self) -> None:
         raise NotImplementedError
 
-    def max_items(self):
+    def max_items(self) -> int:
+        if not self.win:
+            return 0
         return self.win.menu.height
 
-    def show(self, view):
+    def show(self, view: View) -> None:
+        if not self.win:
+            return
         # Update menu:
         with winfocus(self.win.menu) as win:
             win.erase()
-            view.screen_height_set(self.max_items())
+            max_items = self.max_items()
+            if max_items:
+                view.screen_height_set(max_items)
             for i, item in enumerate(view.screen_items()):
                 win.addstr(i, 0, item)
             if view.screen_selected_line() is not None:
                 win.addstr(
-                    view.screen_selected_line(),
+                    view.screen_selected_line() or 0,
                     0,
-                    view.selected_item(),
+                    view.selected_item() or "",
                     curses.A_REVERSE,
                 )
         # Update input:
-        with winfocus(self.win.input) as win:
+        with winfocus(self.win.binput) as win:
             win.erase()
             win.addstr(0, 0, view.binput.string)
         # Update title, with status:
@@ -189,33 +199,38 @@ class UiCursesBase:
         # Refresh screen:
         curses.doupdate()
 
-    def input_read(self, nodelay):
-        self.win.input.win.nodelay(nodelay)
-        key = self.win.input.win.getch()
+    def input_read(self, nodelay: bool) -> Optional[tuple[int, bytes]]:
+        if not self.win:
+            return None
+        self.win.binput.win.nodelay(nodelay)
+        key = self.win.binput.win.getch()
         if key == -1:
-            return key, None
+            return key, b""
         if key in {curses.KEY_ENTER, 10, 13}:
             return curses.KEY_ENTER, b"KEY_ENTER"
         if key == 127:
             return curses.KEY_BACKSPACE, b"KEY_BACKSPACE"
         keyname = curses.keyname(key)
         if key == 27:  # ESC
-            self.win.input.win.nodelay(True)
-            k = self.win.input.win.getch()
+            self.win.binput.win.nodelay(True)
+            k = self.win.binput.win.getch()
             if k != -1:
                 keyname += curses.keyname(k)
-        logger.debug(f"key {key} name {keyname}")
+        logger.debug(f"key {key} name {keyname!r}")
         return key, keyname
 
-    def interact(self, view):
+    def interact(self, view: View) -> bool:
         # Generate first item:
         view.item_generate()
         # Set nonblocking if we have more items to generate, otherwise
         # set blocking mode:
-        key, keyname = self.input_read(bool(view.item_generator))
+        key_keyname = self.input_read(bool(view.item_generator))
+        if not key_keyname:
+            return False
+        key, keyname = key_keyname
         return self.input_process(view, key, keyname)
 
-    def input_process(self, view, key, keyname):
+    def input_process(self, view: View, key: int, keyname: bytes) -> bool:
         if key == -1:
             return False
         # Check if it's a custom edit_action
@@ -248,38 +263,27 @@ class UiCursesSimple(UiCursesBase):
     |||||||||||||||||||||||||||||||||
     """
 
-    def layout(self):
+    def layout(self) -> None:
         lines = curses.LINES
         cols = curses.COLS
-        self.win.title = CursesWin("title", 1, cols, 0, 0)
+        title = CursesWin("title", 1, cols, 0, 0)
         with winfocus(CursesWin("prompt", 1, len(self.prompt) + 1, 1, 0)) as win:
             win.addstr(0, 0, self.prompt)
-            self.win.prompt = win
+            prompt = win
         inputwidth = cols - len(self.prompt)
         with winfocus(CursesWin("input", 1, inputwidth, 1, len(self.prompt))) as win:
             win.win.keypad(True)
-            self.win.input = win
+            binput = win
         menulines = lines - 2
-        self.win.menu = CursesWin("menu", menulines, cols, 2, 0)
+        menu = CursesWin("menu", menulines, cols, 2, 0)
+        self.win = Windows(title, prompt, binput, menu)
 
 
 @contextmanager
-def context(uiclass=UiCursesSimple):
-    ui = uiclass()
+def context() -> Iterator[UiCursesSimple]:
+    ui = UiCursesSimple()
     try:
         ui.start()
         yield ui
     finally:
         ui.end()
-
-
-def main():
-    with context() as ui:
-        items = [str(i) * 10 for i in range(0, ui.max_items())]
-        ui.set("> ", items)
-        ui.refresh()
-        ui.getkey()
-
-
-if __name__ == "__main__":
-    main()

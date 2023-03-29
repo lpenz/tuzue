@@ -9,4 +9,5 @@ build-backend = "setuptools.build_meta"
 [tool.black]
 
 [tool.mypy]
+strict = true
 files = "src, tests"
