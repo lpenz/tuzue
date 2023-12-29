@@ -1,0 +1,9 @@
+.cache/
+__pycache__/
+*.pyc
+/src/tuzue.egg-info/
+/demos/*.cast
+/docs/_build/
+/build/
+/dist/
+/result
